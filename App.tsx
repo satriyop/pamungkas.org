@@ -118,9 +118,14 @@ ${message}
 
   // Fetch GitHub Repos
   useEffect(() => {
+    console.log("Fetching repos...");
     fetch('/api/users/satriyop/repos?sort=updated&per_page=8')
-      .then(res => res.json())
+      .then(res => {
+        console.log("Repos response status:", res.status);
+        return res.json();
+      })
       .then(data => {
+        console.log("Repos data received:", data);
         if (Array.isArray(data)) {
           setRepos(data);
         }
@@ -134,9 +139,14 @@ ${message}
 
   // Fetch GitHub Events (Commits)
   useEffect(() => {
+    console.log("Fetching events...");
     fetch('/api/users/satriyop/events')
-      .then(res => res.json())
+      .then(res => {
+        console.log("Events response status:", res.status);
+        return res.json();
+      })
       .then(data => {
+        console.log("Events data received:", data);
         if (Array.isArray(data)) {
           setGithubEvents(data);
         }

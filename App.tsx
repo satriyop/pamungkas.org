@@ -1,16 +1,23 @@
 
-import React, { useState, useEffect, useCallback } from 'react';
-import { Page, BlogPost } from './types';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
+import { Page, BlogPost, GithubEvent } from './types';
 import { RESUME_MD, BLOG_POSTS } from './constants';
 import MarkdownView from './components/MarkdownView';
+import CommitItem from './components/CommitItem';
 
 const App: React.FC = () => {
   const [currentPage, setCurrentPage] = useState<Page>(Page.HOME);
+  const [lastPage, setLastPage] = useState<Page>(Page.HOME);
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [glitch, setGlitch] = useState(false);
   const [terminalHistory, setTerminalHistory] = useState<string[]>(['Save File Loaded...', 'Location: Valley Outpost', 'Weather: Clear']);
   const [repos, setRepos] = useState<any[]>([]);
   const [loadingRepos, setLoadingRepos] = useState(true);
+  const [githubEvents, setGithubEvents] = useState<GithubEvent[]>([]);
+  const [loadingEvents, setLoadingEvents] = useState(true);
+  const [activeProjectCommits, setActiveProjectCommits] = useState<any[]>([]);
+  const [activeProjectName, setActiveProjectName] = useState<string>('');
+  const chartContainerRef = useRef<HTMLDivElement>(null);
 
   const triggerTransition = useCallback(() => {
     setGlitch(true);
@@ -19,10 +26,101 @@ const App: React.FC = () => {
 
   const navigate = useCallback((page: Page, post: BlogPost | null = null) => {
     triggerTransition();
+    if (page !== Page.POST) {
+      setLastPage(page);
+    } else {
+      setLastPage(currentPage);
+    }
     setCurrentPage(page);
     setSelectedPost(post);
     setTerminalHistory(prev => [...prev, `Action: Go to ${page}${post ? ` (${post.id})` : ''}`]);
-  }, [triggerTransition]);
+  }, [triggerTransition, currentPage]);
+
+  // Detect and fetch latest active project commits
+  useEffect(() => {
+    const latestPush = githubEvents.find(e => e.type === 'PushEvent');
+    if (latestPush) {
+      const repoName = latestPush.repo.name;
+      setActiveProjectName(repoName);
+      
+      const token = import.meta.env.VITE_GITHUB_TOKEN;
+      const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
+
+      fetch(`https://api.github.com/repos/${repoName}/commits?per_page=6`, { headers })
+        .then(res => res.json())
+        .then(data => {
+          if (Array.isArray(data)) {
+            setActiveProjectCommits(data);
+          }
+        })
+        .catch(err => console.error("Error fetching project commits", err));
+    }
+  }, [githubEvents]);
+
+  // Scroll chart to end (latest) on mount
+  useEffect(() => {
+    if (chartContainerRef.current) {
+      const el = chartContainerRef.current;
+      // Use a small timeout to ensure the DOM has rendered and scrollWidth is accurate
+      setTimeout(() => {
+        el.scrollLeft = el.scrollWidth;
+      }, 100);
+    }
+  }, [currentPage]);
+
+  const handleRepoClick = useCallback((repo: any) => {
+    const token = import.meta.env.VITE_GITHUB_TOKEN;
+    const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
+
+    setTerminalHistory(prev => [...prev, `Fetching README for ${repo.name}...`]);
+
+    fetch(`https://api.github.com/repos/${repo.full_name}/readme`, { headers })
+      .then(res => {
+        if (!res.ok) throw new Error('README not found');
+        return res.json();
+      })
+      .then(data => {
+        // GitHub API returns content in base64
+        const content = decodeURIComponent(escape(atob(data.content)));
+        const post: BlogPost = {
+          id: `repo-${repo.id}`,
+          title: `PROJECT: ${repo.name.toUpperCase()}`,
+          date: new Date(repo.updated_at).toLocaleDateString('en-US', {
+            year: 'numeric',
+            month: 'short',
+            day: '2-digit',
+          }),
+          content: content
+        };
+        navigate(Page.POST, post);
+      })
+      .catch(err => {
+        console.error("Error fetching README", err);
+        setTerminalHistory(prev => [...prev, `Error: README unavailable. Redirecting to external site.`]);
+        window.open(repo.html_url, '_blank', 'noopener,noreferrer');
+      });
+  }, [navigate]);
+
+  const handleCommitClick = useCallback((event: GithubEvent, message: string, sha: string) => {
+    const post: BlogPost = {
+      id: event.id,
+      title: `COMMIT: ${sha.substring(0, 7)}`,
+      date: new Date(event.created_at).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: '2-digit',
+      }),
+      content: `# ${event.repo.name}
+## Commit: ${sha}
+
+### Message
+${message}
+
+---
+[View on GitHub](https://github.com/${event.repo.name}/commit/${sha})`
+    };
+    navigate(Page.POST, post);
+  }, [navigate]);
 
   // Fetch GitHub Repos
   useEffect(() => {
@@ -37,6 +135,27 @@ const App: React.FC = () => {
       .catch(err => {
         console.error("Error fetching repos", err);
         setLoadingRepos(false);
+      });
+  }, []);
+
+  // Fetch GitHub Events (Commits)
+  useEffect(() => {
+    const token = import.meta.env.VITE_GITHUB_TOKEN;
+    const headers: HeadersInit = token 
+      ? { Authorization: `Bearer ${token}` } 
+      : {};
+
+    fetch('https://api.github.com/users/satriyop/events', { headers })
+      .then(res => res.json())
+      .then(data => {
+        if (Array.isArray(data)) {
+          setGithubEvents(data);
+        }
+        setLoadingEvents(false);
+      })
+      .catch(err => {
+        console.error("Error fetching events", err);
+        setLoadingEvents(false);
       });
   }, []);
 
@@ -60,7 +179,7 @@ const App: React.FC = () => {
           break;
         case 'Escape':
           if (currentPage === Page.POST) {
-            navigate(Page.BLOG);
+            navigate(lastPage);
           }
           break;
         default:
@@ -70,35 +189,35 @@ const App: React.FC = () => {
 
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [currentPage, navigate]);
+  }, [currentPage, navigate, lastPage]);
 
   return (
-    <div className={`min-h-screen relative flex flex-col md:flex-row transition-all duration-75 ${glitch ? 'grayscale' : ''}`}>
+    <div className={`min-h-screen relative flex flex-col md:flex-row transition-all duration-75 ${glitch ? 'grayscale' : ''} overflow-x-hidden`}>
       
       {/* Inventory-Style Sidebar - Carved Wood Aesthetic */}
-      <aside className="fixed left-0 top-0 h-full w-16 md:w-28 border-r-4 border-[#2b2626] flex flex-col items-center justify-between py-12 z-50 bg-[#4e4444] shadow-[4px_0px_0px_#352f2f]">
-        <div className="vertical-text font-bold text-3xl tracking-[0.2em] rotate-180 text-[#55a630] select-none pixel-font crt-glow">
+      <aside className="fixed left-0 top-0 h-full w-16 md:w-28 border-r-4 border-[#2b2626] flex flex-col items-center justify-between py-6 md:py-12 z-50 bg-[#4e4444] shadow-[4px_0px_0px_#352f2f]">
+        <div className="vertical-text font-bold text-2xl md:text-3xl tracking-[0.2em] rotate-180 text-[#55a630] select-none pixel-font crt-glow">
           PAMUNGKAS.ORG
         </div>
-        <nav className="flex flex-col gap-10">
+        <nav className="flex flex-col gap-8 md:gap-10">
           <button 
             onClick={() => navigate(Page.HOME)}
             title="Shortcut: 1"
-            className={`pixel-hover p-3 transform -rotate-90 origin-center text-sm font-bold tracking-tighter transition-all ${currentPage === Page.HOME ? 'bg-[#55a630] text-white scale-110' : 'text-[#fcf4cf] border-2 border-[#fcf4cf]'}`}
+            className={`pixel-hover p-2 md:p-3 transform -rotate-90 origin-center text-xs md:text-sm font-bold tracking-tighter transition-all ${currentPage === Page.HOME ? 'bg-[#55a630] text-white scale-110' : 'text-[#fcf4cf] border-2 border-[#fcf4cf]'}`}
           >
             MENU
           </button>
           <button 
             onClick={() => navigate(Page.RESUME)}
             title="Shortcut: 2"
-            className={`pixel-hover p-3 transform -rotate-90 origin-center text-sm font-bold tracking-tighter transition-all ${currentPage === Page.RESUME ? 'bg-[#55a630] text-white scale-110' : 'text-[#fcf4cf] border-2 border-[#fcf4cf]'}`}
+            className={`pixel-hover p-2 md:p-3 transform -rotate-90 origin-center text-xs md:text-sm font-bold tracking-tighter transition-all ${currentPage === Page.RESUME ? 'bg-[#55a630] text-white scale-110' : 'text-[#fcf4cf] border-2 border-[#fcf4cf]'}`}
           >
             BIO
           </button>
           <button 
             onClick={() => navigate(Page.BLOG)}
             title="Shortcut: 3"
-            className={`pixel-hover p-3 transform -rotate-90 origin-center text-sm font-bold tracking-tighter transition-all ${currentPage === Page.BLOG ? 'bg-[#55a630] text-white scale-110' : 'text-[#fcf4cf] border-2 border-[#fcf4cf]'}`}
+            className={`pixel-hover p-2 md:p-3 transform -rotate-90 origin-center text-xs md:text-sm font-bold tracking-tighter transition-all ${currentPage === Page.BLOG ? 'bg-[#55a630] text-white scale-110' : 'text-[#fcf4cf] border-2 border-[#fcf4cf]'}`}
           >
             DATA
           </button>
@@ -110,72 +229,140 @@ const App: React.FC = () => {
       </aside>
 
       {/* Main Content Area */}
-      <main className="flex-1 ml-16 md:ml-28 p-8 md:p-24 overflow-y-auto">
+      <main className="flex-1 ml-16 md:ml-28 p-4 md:p-24 overflow-y-auto max-w-full overflow-x-hidden">
         
         {/* Game Header */}
-        <header className="mb-24 relative">
-          <h1 className="text-6xl md:text-8xl font-black tracking-tighter leading-none m-0 text-[#fcf4cf] pixel-font crt-glow">
+        <header className="mb-12 md:mb-24 relative mt-4 md:mt-0">
+          <h1 className="text-4xl sm:text-6xl md:text-8xl font-black tracking-tighter leading-none m-0 text-[#fcf4cf] pixel-font crt-glow">
             SATRIYO<br/>
             <span className="text-[#55a630] block md:translate-x-16">PAMUNGKAS</span>
           </h1>
-          <div className="absolute -top-4 -right-4 bg-[#ae2012] text-white text-xs px-3 py-1 font-bold transform rotate-6 border-2 border-white shadow-lg">
+          <div className="absolute -top-4 -right-4 md:-right-8 bg-[#ae2012] text-white text-[10px] md:text-xs px-2 md:px-3 py-1 font-bold transform rotate-6 border-2 border-white shadow-lg whitespace-nowrap">
             LEGENDARY ARCHITECT
           </div>
         </header>
 
         {/* Dynamic Content */}
-        <div className="max-w-4xl space-y-20">
+        <div className="max-w-4xl space-y-12 md:space-y-20 pb-24 md:pb-0">
           {currentPage === Page.HOME && (
-            <section className="space-y-16">
-              <div className="flex flex-col md:flex-row gap-12">
-                <div className="inventory-border p-10 flex-1 relative group">
-                  <h3 className="text-[#6eb6ff] text-3xl mb-6 pixel-font">QUEST_LOG</h3>
-                  <p className="text-xl leading-relaxed opacity-90">
+            <section className="space-y-12 md:space-y-16">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
+                {/* QUEST_LOG */}
+                <div className="inventory-border p-4 md:p-10 flex-1 relative group order-1 min-w-0">
+                  <h3 className="text-[#6eb6ff] text-2xl md:text-3xl mb-4 md:mb-6 pixel-font">QUEST_LOG</h3>
+                  <p className="text-base md:text-xl leading-relaxed opacity-90">
                     Satriyo is currently on a mission to modernize critical infrastructure. Armed with high-level certifications and 15+ years of experience in system architecture and digital transformation.
                   </p>
-                  <div className="mt-8 text-sm text-[#55a630] font-bold">CURRENT_OBJECTIVE: SOLVE_CHAOS</div>
+                  
+                  {/* Digital Footsteps - Global Git Graph */}
+                  <div className="mt-8 border-t-2 border-[#2b2626] pt-6">
+                    <div className="flex justify-between items-center mb-6">
+                      <h4 className="text-[#55a630] text-sm pixel-font uppercase tracking-widest">
+                        QUEST: {activeProjectName.split('/')[1] || 'Scanning...'}
+                      </h4>
+                      <div className="text-[8px] text-[#fcf4cf]/30 animate-pulse font-mono uppercase">Tracking Project History</div>
+                    </div>
+                    
+                    <div className="relative ml-2 border-l-2 border-dashed border-[#55a630]/30 pl-8 space-y-8">
+                      {activeProjectCommits.length === 0 ? (
+                        <div className="text-[10px] opacity-50 uppercase italic">Awaiting project signal...</div>
+                      ) : (
+                        activeProjectCommits.map((c, idx) => {
+                          const msg = c.commit.message;
+                          const sha = c.sha;
+                          const date = new Date(c.commit.author.date).toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+                          
+                          return (
+                            <div key={sha} className="relative group/node">
+                              {/* Node Dot */}
+                              <div className={`absolute -left-[41px] top-1 w-5 h-5 bg-[#4e4444] border-2 ${idx === 0 ? 'border-[#55a630]' : 'border-[#2b2626]'} flex items-center justify-center z-10 transition-colors group-hover/node:border-[#6eb6ff]`}>
+                                {idx === 0 && <div className="w-2 h-2 bg-[#55a630] rounded-full animate-ping"></div>}
+                                <div className={`w-1 h-1 ${idx === 0 ? 'bg-[#55a630]' : 'bg-[#2b2626]'} rounded-full`}></div>
+                              </div>
+                              
+                              {/* Node Content */}
+                              <div className="cursor-pointer" onClick={() => {
+                                // Create a virtual event to use the handleCommitClick logic
+                                const virtualEvent: GithubEvent = {
+                                  id: sha,
+                                  type: 'PushEvent',
+                                  actor: { login: 'satriyop', avatar_url: '' },
+                                  repo: { name: activeProjectName, url: `https://api.github.com/repos/${activeProjectName}` },
+                                  payload: { commits: [{ sha, message: msg, url: '' }] },
+                                  created_at: c.commit.author.date
+                                };
+                                handleCommitClick(virtualEvent, msg, sha);
+                              }}>
+                                <div className="text-[10px] font-bold text-[#6eb6ff] uppercase mb-1 flex justify-between items-center">
+                                  <span>{sha.substring(0, 7)}</span>
+                                  <span className="opacity-40">{date}</span>
+                                </div>
+                                <div className="text-xs opacity-70 leading-tight line-clamp-1 font-mono group-hover/node:opacity-100 group-hover/node:text-[#fcf4cf] transition-all">
+                                  &gt; {msg}
+                                </div>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                      
+                      {/* Terminal Path End */}
+                      <div className="absolute -left-[35px] -bottom-4 text-[10px] text-[#55a630]/20 font-bold rotate-90 tracking-widest uppercase">
+                        Origin
+                      </div>
+                    </div>
+                  </div>
+
+                  <div className="mt-12 text-xs md:text-sm text-[#55a630] font-bold flex items-center gap-2">
+                    <span className="w-2 h-2 bg-[#55a630] rounded-full animate-pulse"></span>
+                    CURRENT_OBJECTIVE: SOLVE_CHAOS
+                  </div>
+                </div>
+
+                {/* SKILL_GROWTH (GitHub Chart) - Mobile: Order 2, Desktop: Order 3 (Bottom Full Width) */}
+                <div className="inventory-border p-4 md:p-6 relative overflow-hidden order-2 md:order-3 md:col-span-2 min-w-0">
+                  <div className="flex justify-between items-center mb-4 md:mb-6">
+                    <h3 className="text-[#6eb6ff] text-2xl md:text-3xl pixel-font">SKILL_GROWTH</h3>
+                    <div className="text-[10px] text-[#55a630] font-bold uppercase tracking-widest">Git: satriyop</div>
+                  </div>
+                  <div ref={chartContainerRef} className="bg-[#2b2626]/40 p-2 md:p-4 rounded border-2 border-[#2b2626] overflow-x-auto max-w-full">
+                    <img 
+                      src="https://ghchart.rshah.org/55a630/satriyop" 
+                      alt="satriyop's GitHub contributions" 
+                      className="w-full min-w-[600px] pixelated-img opacity-90 hover:opacity-100 transition-opacity"
+                      style={{ imageRendering: 'pixelated' }}
+                    />
+                  </div>
+                  <div className="mt-4 text-[10px] text-right text-[#fcf4cf]/40 italic">
+                    * Historical data fetched from the decentralized archives
+                  </div>
                 </div>
                 
-                <div className="inventory-border p-10 flex-1 bg-[#352f2f]/30">
-                  <h3 className="text-[#6eb6ff] text-3xl mb-6 pixel-font">ARCHIVE</h3>
-                  <ul className="space-y-4">
-                    {BLOG_POSTS.map(post => (
-                      <li key={post.id}>
-                        <button 
-                          onClick={() => navigate(Page.POST, post)}
-                          className="text-lg hover:text-[#55a630] transition-all block w-full text-left p-1 border-b border-[#2b2626]"
-                        >
-                          * {post.title}
-                        </button>
-                      </li>
-                    ))}
-                  </ul>
-                </div>
-              </div>
-
-              {/* GitHub Contributions Section */}
-              <div className="inventory-border p-6 relative overflow-hidden">
-                <div className="flex justify-between items-center mb-6">
-                  <h3 className="text-[#6eb6ff] text-3xl pixel-font">SKILL_GROWTH</h3>
-                  <div className="text-[10px] text-[#55a630] font-bold uppercase tracking-widest">Git: satriyop</div>
-                </div>
-                <div className="bg-[#2b2626]/40 p-4 rounded border-2 border-[#2b2626] overflow-x-auto">
-                  <img 
-                    src="https://ghchart.rshah.org/55a630/satriyop" 
-                    alt="satriyop's GitHub contributions" 
-                    className="w-full min-w-[600px] pixelated-img opacity-90 hover:opacity-100 transition-opacity"
-                    style={{ imageRendering: 'pixelated' }}
-                  />
-                </div>
-                <div className="mt-4 text-[10px] text-right text-[#fcf4cf]/40 italic">
-                  * Historical data fetched from the decentralized archives
+                {/* RECENT_LOGS - Mobile: Order 3, Desktop: Order 2 (Right Column) */}
+                <div className="inventory-border p-4 md:p-10 flex-1 bg-[#352f2f]/30 order-3 md:order-2 min-w-0">
+                  <h3 className="text-[#6eb6ff] text-2xl md:text-3xl mb-4 md:mb-6 pixel-font">RECENT_LOGS</h3>
+                  <div className="space-y-4">
+                    {loadingEvents ? (
+                      <div className="text-[#55a630] font-bold animate-pulse text-sm">Loading datastream...</div>
+                    ) : (
+                      githubEvents
+                        .filter(event => event.type === 'PushEvent')
+                        .slice(0, 5)
+                        .map(event => (
+                          <CommitItem key={event.id} event={event} onClick={(msg, sha) => handleCommitClick(event, msg, sha)} />
+                        ))
+                    )}
+                    {!loadingEvents && githubEvents.filter(e => e.type === 'PushEvent').length === 0 && (
+                      <div className="opacity-50 text-sm">No recent logs found.</div>
+                    )}
+                  </div>
                 </div>
               </div>
 
               {/* Public Repositories as Inventory Slots */}
               <div className="space-y-6">
-                <h3 className="text-[#6eb6ff] text-3xl pixel-font">PUBLIC_ARTIFACTS</h3>
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
+                <h3 className="text-[#6eb6ff] text-2xl md:text-3xl pixel-font">PUBLIC_ARTIFACTS</h3>
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                   {loadingRepos ? (
                     Array.from({ length: 8 }).map((_, i) => (
                       <div key={i} className="inventory-border p-4 text-center animate-pulse h-24 flex items-center justify-center">
@@ -189,7 +376,11 @@ const App: React.FC = () => {
                         href={repo.html_url}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="inventory-border p-4 text-center group cursor-pointer transition-all hover:scale-105 block no-underline"
+                        onClick={(e) => {
+                          e.preventDefault();
+                          handleRepoClick(repo);
+                        }}
+                        className="inventory-border p-4 text-center group cursor-pointer transition-all hover:scale-105 block no-underline min-w-0"
                       >
                         <div className="text-[10px] text-[#6eb6ff] mb-2 opacity-50 uppercase truncate">
                           {repo.language || 'Code'}
@@ -211,37 +402,45 @@ const App: React.FC = () => {
           )}
 
           {currentPage === Page.RESUME && (
-            <div className="inventory-border p-8 md:p-16">
-              <div className="mb-12 border-b-4 border-[#55a630] pb-6">
-                <h2 className="text-5xl text-[#55a630] pixel-font">ADVENTURER_BIO.TXT</h2>
+            <div className="inventory-border p-6 md:p-16">
+              <div className="mb-8 md:mb-12 border-b-4 border-[#55a630] pb-4 md:pb-6">
+                <h2 className="text-3xl md:text-5xl text-[#55a630] pixel-font break-all md:break-normal">ADVENTURER_BIO.TXT</h2>
               </div>
               <MarkdownView content={RESUME_MD} />
             </div>
           )}
 
           {currentPage === Page.BLOG && (
-            <div className="space-y-16">
-              <h2 className="text-6xl text-[#6eb6ff] pixel-font border-l-8 border-[#6eb6ff] pl-6">SCROLL_DUMP</h2>
-              {BLOG_POSTS.map(post => (
-                <article 
-                  key={post.id} 
-                  className="inventory-border p-8 cursor-pointer hover:bg-[#352f2f] transition-all group relative"
-                  onClick={() => navigate(Page.POST, post)}
-                >
-                  <div className="absolute top-4 right-4 text-xs font-bold text-[#55a630]">{post.date}</div>
-                  <h2 className="text-4xl font-black pixel-font mb-4 group-hover:translate-x-4 transition-transform">{post.title}</h2>
-                  <div className="text-sm uppercase font-bold tracking-widest text-[#6eb6ff]">Read Knowledge Fragment</div>
-                </article>
-              ))}
+            <div className="space-y-12 md:space-y-16">
+              <h2 className="text-4xl md:text-6xl text-[#6eb6ff] pixel-font border-l-8 border-[#6eb6ff] pl-4 md:pl-6">DATA_STREAM</h2>
+              {loadingEvents ? (
+                <div className="inventory-border p-8 text-center animate-pulse">
+                  <span className="text-xl pixel-font text-[#6eb6ff]">CONNECTING TO SATELLITE...</span>
+                </div>
+              ) : (
+                <div className="grid gap-4 md:gap-6">
+                  {githubEvents
+                    .filter(event => event.type === 'PushEvent')
+                    .slice(0, 10) // Show last 10 push events
+                    .map(event => (
+                      <CommitItem key={event.id} event={event} onClick={(msg, sha) => handleCommitClick(event, msg, sha)} />
+                    ))}
+                    {githubEvents.filter(event => event.type === 'PushEvent').length === 0 && (
+                      <div className="inventory-border p-8 text-center text-[#ae2012]">
+                        NO DATA SIGNALS DETECTED.
+                      </div>
+                    )}
+                </div>
+              )}
             </div>
           )}
 
           {currentPage === Page.POST && selectedPost && (
-            <div className="inventory-border p-8 md:p-16">
+            <div className="inventory-border p-6 md:p-16">
               <button 
-                onClick={() => navigate(Page.BLOG)}
+                onClick={() => navigate(lastPage)}
                 title="Shortcut: Escape"
-                className="mb-12 bg-[#2b2626] text-[#fcf4cf] border-2 border-[#fcf4cf] px-6 py-2 text-sm font-bold hover:bg-[#55a630] transition-colors pixel-font"
+                className="mb-8 md:mb-12 bg-[#2b2626] text-[#fcf4cf] border-2 border-[#fcf4cf] px-4 md:px-6 py-2 text-xs md:text-sm font-bold hover:bg-[#55a630] transition-colors pixel-font"
               >
                 &lt; EXIT_RECORDS [ESC]
               </button>
@@ -252,7 +451,7 @@ const App: React.FC = () => {
       </main>
 
       {/* Floating Status Bar */}
-      <footer className="fixed bottom-6 right-6 md:right-16 w-64 border-4 border-[#2b2626] bg-[#4e4444] p-4 font-mono z-40 shadow-[8px_8px_0px_#2b2626]">
+      <footer className="fixed bottom-4 right-4 md:bottom-6 md:right-16 w-64 border-4 border-[#2b2626] bg-[#4e4444] p-4 font-mono z-40 shadow-[8px_8px_0px_#2b2626] origin-bottom-right scale-90 md:scale-100 hidden sm:block">
         <div className="flex justify-between items-center border-b border-[#2b2626] mb-3 pb-1">
             <div className="text-[#55a630] font-bold text-xs uppercase pixel-font">Status Window</div>
             <div className="text-[#ae2012] text-xs">● Live</div>
@@ -271,7 +470,7 @@ const App: React.FC = () => {
       </footer>
 
       {/* Background Flavor Text */}
-      <div className="fixed bottom-0 right-0 text-[25vh] font-black text-black/5 pointer-events-none select-none -z-10 pixel-font leading-none text-right">
+      <div className="fixed bottom-0 right-0 text-[15vh] md:text-[25vh] font-black text-black/5 pointer-events-none select-none -z-10 pixel-font leading-none text-right">
         VALLEY<br/>DATA
       </div>
     </div>

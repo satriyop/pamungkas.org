@@ -43,10 +43,7 @@ const App: React.FC = () => {
       const repoName = latestPush.repo.name;
       setActiveProjectName(repoName);
       
-      const token = import.meta.env.VITE_GITHUB_TOKEN;
-      const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
-
-      fetch(`https://api.github.com/repos/${repoName}/commits?per_page=6`, { headers })
+      fetch(`/api/repos/${repoName}/commits?per_page=6`)
         .then(res => res.json())
         .then(data => {
           if (Array.isArray(data)) {
@@ -69,12 +66,9 @@ const App: React.FC = () => {
   }, [currentPage]);
 
   const handleRepoClick = useCallback((repo: any) => {
-    const token = import.meta.env.VITE_GITHUB_TOKEN;
-    const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
-
     setTerminalHistory(prev => [...prev, `Fetching README for ${repo.name}...`]);
 
-    fetch(`https://api.github.com/repos/${repo.full_name}/readme`, { headers })
+    fetch(`/api/repos/${repo.full_name}/readme`)
       .then(res => {
         if (!res.ok) throw new Error('README not found');
         return res.json();
@@ -124,7 +118,7 @@ ${message}
 
   // Fetch GitHub Repos
   useEffect(() => {
-    fetch('https://api.github.com/users/satriyop/repos?sort=updated&per_page=8')
+    fetch('/api/users/satriyop/repos?sort=updated&per_page=8')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {
@@ -140,12 +134,7 @@ ${message}
 
   // Fetch GitHub Events (Commits)
   useEffect(() => {
-    const token = import.meta.env.VITE_GITHUB_TOKEN;
-    const headers: HeadersInit = token 
-      ? { Authorization: `Bearer ${token}` } 
-      : {};
-
-    fetch('https://api.github.com/users/satriyop/events', { headers })
+    fetch('/api/users/satriyop/events')
       .then(res => res.json())
       .then(data => {
         if (Array.isArray(data)) {

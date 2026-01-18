@@ -45,12 +45,10 @@ const CommitItem: React.FC<CommitItemProps> = ({ event, onClick }) => {
     // If we have a SHA but no message (e.g. private repo event masking), fetch it
     const fetchCommitDetails = async () => {
       setLoadingMsg(true);
-      const token = import.meta.env.VITE_GITHUB_TOKEN;
-      const headers: HeadersInit = token ? { Authorization: `Bearer ${token}` } : {};
 
       try {
-        // Construct API URL: event.repo.url is like "https://api.github.com/repos/user/repo"
-        const response = await fetch(`${event.repo.url}/commits/${commitSha}`, { headers });
+        // Use proxy instead of GitHub URL directly
+        const response = await fetch(`/api/repos/${event.repo.name}/commits/${commitSha}`);
         if (response.ok) {
           const data = await response.json();
           setMessage(data.commit.message);

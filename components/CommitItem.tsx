@@ -1,24 +1,66 @@
 import React, { useState, useEffect } from 'react';
-import { GithubEvent } from '../types';
+import { GithubEvent, GithubCommitDetail } from '../types';
 
 interface CommitItemProps {
   event: GithubEvent;
   onClick?: (message: string, sha: string) => void;
 }
 
-const CommitItem: React.FC<CommitItemProps> = ({ event, onClick }) => {
-  const [message, setMessage] = useState<string>('');
-  const [loadingMsg, setLoadingMsg] = useState(false);
+// In-memory cache and promise deduplicator across component instances
+const commitMessageCache = new Map<string, string>();
+const pendingCommitFetches = new Map<string, Promise<string>>();
 
+async function getCommitMessage(repoName: string, sha: string, fallbackRef: string): Promise<string> {
+  const cacheKey = `${repoName}:${sha}`;
+  const cached = commitMessageCache.get(cacheKey);
+  if (cached !== undefined) {
+    return cached;
+  }
+
+  const existingFetch = pendingCommitFetches.get(cacheKey);
+  if (existingFetch) {
+    return existingFetch;
+  }
+
+  const fetchPromise = (async () => {
+    try {
+      const response = await fetch(`/api/repos/${repoName}/commits/${sha}`);
+      if (response.ok) {
+        const data = (await response.json()) as GithubCommitDetail;
+        const msg = data.commit.message || `Update to ${fallbackRef}`;
+        commitMessageCache.set(cacheKey, msg);
+        return msg;
+      }
+      return `Update to ${fallbackRef}`;
+    } catch {
+      return `Update to ${fallbackRef}`;
+    } finally {
+      pendingCommitFetches.delete(cacheKey);
+    }
+  })();
+
+  pendingCommitFetches.set(cacheKey, fetchPromise);
+  return fetchPromise;
+}
+
+const CommitItem: React.FC<CommitItemProps> = ({ event, onClick }) => {
   // Determine initial data availability
-  const hasCommits = event.payload.commits && event.payload.commits.length > 0;
+  const hasCommits = Boolean(event.payload.commits && event.payload.commits.length > 0);
   const refName = event.payload.ref ? event.payload.ref.replace('refs/heads/', '') : 'repository';
-  
-  // SHA determination
-  const commitSha = hasCommits 
-    ? event.payload.commits![0].sha 
-    : (event.payload as any).head; // 'head' exists on PushEvent payload but might be missing from type def
-    
+  const commitSha = hasCommits ? event.payload.commits![0].sha : event.payload.head;
+  const cacheKey = `${event.repo.name}:${commitSha}`;
+
+  const initialMessage = hasCommits
+    ? event.payload.commits![0].message
+    : commitSha && commitMessageCache.has(cacheKey)
+      ? commitMessageCache.get(cacheKey)!
+      : '';
+
+  const [message, setMessage] = useState<string>(initialMessage);
+  const [loadingMsg, setLoadingMsg] = useState<boolean>(
+    !hasCommits && Boolean(commitSha) && !commitMessageCache.has(cacheKey)
+  );
+
   const displaySha = commitSha ? commitSha.substring(0, 7) : '???????';
 
   // Format Date
@@ -27,62 +69,70 @@ const CommitItem: React.FC<CommitItemProps> = ({ event, onClick }) => {
     month: 'short',
     day: '2-digit',
     hour: '2-digit',
-    minute: '2-digit'
+    minute: '2-digit',
   });
 
   // Effect to fetch message if missing
   useEffect(() => {
     if (hasCommits) {
       setMessage(event.payload.commits![0].message);
+      setLoadingMsg(false);
       return;
     }
 
     if (!commitSha) {
-        setMessage(`Update to ${refName}`);
-        return;
+      setMessage(`Update to ${refName}`);
+      setLoadingMsg(false);
+      return;
     }
 
-    // If we have a SHA but no message (e.g. private repo event masking), fetch it
-    const fetchCommitDetails = async () => {
-      setLoadingMsg(true);
+    if (commitMessageCache.has(cacheKey)) {
+      setMessage(commitMessageCache.get(cacheKey)!);
+      setLoadingMsg(false);
+      return;
+    }
 
-      try {
-        // Use proxy instead of GitHub URL directly
-        const response = await fetch(`/api/repos/${event.repo.name}/commits/${commitSha}`);
-        if (response.ok) {
-          const data = await response.json();
-          setMessage(data.commit.message);
-        } else {
-          setMessage(`Update to ${refName}`);
-        }
-      } catch (error) {
-        setMessage(`Update to ${refName}`);
-      } finally {
+    let isMounted = true;
+    setLoadingMsg(true);
+
+    getCommitMessage(event.repo.name, commitSha, refName).then((msg) => {
+      if (isMounted) {
+        setMessage(msg);
         setLoadingMsg(false);
       }
-    };
+    });
 
-    fetchCommitDetails();
-  }, [event, hasCommits, commitSha, refName]);
+    return () => {
+      isMounted = false;
+    };
+  }, [event.repo.name, hasCommits, commitSha, refName, cacheKey]);
 
   return (
-    <a 
+    <a
       href={`https://github.com/${event.repo.name}/commit/${commitSha}`}
       target="_blank"
       rel="noopener noreferrer"
       onClick={(e) => {
         if (onClick) {
           e.preventDefault();
-          onClick(message, commitSha);
+          onClick(message, commitSha || '');
         }
       }}
       className="inventory-border p-3 md:p-6 cursor-pointer hover:bg-[#352f2f] transition-all group relative block no-underline w-full max-w-full"
     >
       <div className="flex justify-between items-center mb-2 gap-2">
-        <span className="text-[#55a630] font-bold text-[10px] md:text-xs uppercase tracking-widest truncate flex-1 min-w-0">{event.repo.name}</span>
-        <span className="text-[#ae2012] text-[10px] md:text-xs font-mono whitespace-nowrap flex-shrink-0">[{displaySha}]</span>
+        <span className="text-[#55a630] font-bold text-[10px] md:text-xs uppercase tracking-widest truncate flex-1 min-w-0">
+          {event.repo.name}
+        </span>
+        <span className="text-[#ae2012] text-[10px] md:text-xs font-mono whitespace-nowrap flex-shrink-0">
+          [{displaySha}]
+        </span>
       </div>
-      <h3 className={`text-base md:text-xl font-bold pixel-font mb-2 group-hover:text-[#6eb6ff] transition-colors line-clamp-2 break-all ${loadingMsg ? 'animate-pulse' : ''}`}>
+      <h3
+        className={`text-base md:text-xl font-bold pixel-font mb-2 group-hover:text-[#6eb6ff] transition-colors line-clamp-2 break-all ${
+          loadingMsg ? 'animate-pulse' : ''
+        }`}
+      >
         {loadingMsg ? 'DECODING TRANSMISSION...' : message}
       </h3>
       <div className="text-right text-[#fcf4cf]/50 text-[10px] md:text-xs mt-2 md:mt-4 border-t border-[#2b2626] pt-2">

@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Page, BlogPost, GithubEvent } from './types';
+import { Page, BlogPost, GithubEvent, GithubRepo, GithubReadmeResponse, GithubCommitDetail } from './types';
 import { RESUME_MD, BLOG_POSTS } from './constants';
 import MarkdownView from './components/MarkdownView';
 import CommitItem from './components/CommitItem';
@@ -11,11 +11,13 @@ const App: React.FC = () => {
   const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
   const [glitch, setGlitch] = useState(false);
   const [terminalHistory, setTerminalHistory] = useState<string[]>(['Save File Loaded...', 'Location: Valley Outpost', 'Weather: Clear']);
-  const [repos, setRepos] = useState<any[]>([]);
+  const [repos, setRepos] = useState<GithubRepo[]>([]);
   const [loadingRepos, setLoadingRepos] = useState(true);
+  const [reposError, setReposError] = useState<string | null>(null);
   const [githubEvents, setGithubEvents] = useState<GithubEvent[]>([]);
   const [loadingEvents, setLoadingEvents] = useState(true);
-  const [activeProjectCommits, setActiveProjectCommits] = useState<any[]>([]);
+  const [eventsError, setEventsError] = useState<string | null>(null);
+  const [activeProjectCommits, setActiveProjectCommits] = useState<GithubCommitDetail[]>([]);
   const [activeProjectName, setActiveProjectName] = useState<string>('');
   const chartContainerRef = useRef<HTMLDivElement>(null);
 
@@ -36,6 +38,12 @@ const App: React.FC = () => {
     setTerminalHistory(prev => [...prev, `Action: Go to ${page}${post ? ` (${post.id})` : ''}`]);
   }, [triggerTransition, currentPage]);
 
+  const scrollChartToEnd = useCallback(() => {
+    if (chartContainerRef.current) {
+      chartContainerRef.current.scrollLeft = chartContainerRef.current.scrollWidth;
+    }
+  }, []);
+
   // Detect and fetch latest active project commits
   useEffect(() => {
     const latestPush = githubEvents.find(e => e.type === 'PushEvent');
@@ -43,39 +51,42 @@ const App: React.FC = () => {
       const repoName = latestPush.repo.name;
       setActiveProjectName(repoName);
       
+      let isMounted = true;
       fetch(`/api/repos/${repoName}/commits?per_page=6`)
-        .then(res => res.json())
+        .then(res => res.ok ? (res.json() as Promise<GithubCommitDetail[]>) : [])
         .then(data => {
-          if (Array.isArray(data)) {
+          if (isMounted && Array.isArray(data)) {
             setActiveProjectCommits(data);
           }
         })
-        .catch(err => console.error("Error fetching project commits", err));
+        .catch(() => {});
+
+      return () => {
+        isMounted = false;
+      };
     }
   }, [githubEvents]);
 
-  // Scroll chart to end (latest) on mount
+  // Scroll chart to end (latest) on mount and page switch
   useEffect(() => {
-    if (chartContainerRef.current) {
-      const el = chartContainerRef.current;
-      // Use a small timeout to ensure the DOM has rendered and scrollWidth is accurate
-      setTimeout(() => {
-        el.scrollLeft = el.scrollWidth;
-      }, 100);
-    }
-  }, [currentPage]);
+    scrollChartToEnd();
+  }, [currentPage, scrollChartToEnd]);
 
-  const handleRepoClick = useCallback((repo: any) => {
+  const handleRepoClick = useCallback((repo: GithubRepo) => {
     setTerminalHistory(prev => [...prev, `Fetching README for ${repo.name}...`]);
 
     fetch(`/api/repos/${repo.full_name}/readme`)
       .then(res => {
         if (!res.ok) throw new Error('README not found');
-        return res.json();
+        return res.json() as Promise<GithubReadmeResponse>;
       })
       .then(data => {
-        // GitHub API returns content in base64
-        const content = decodeURIComponent(escape(atob(data.content)));
+        // GitHub API returns content in base64, clean any whitespace/newlines
+        const cleanBase64 = data.content.replace(/\s/g, '');
+        const binaryString = atob(cleanBase64);
+        const bytes = Uint8Array.from(binaryString, c => c.charCodeAt(0));
+        const content = new TextDecoder('utf-8').decode(bytes);
+
         const post: BlogPost = {
           id: `repo-${repo.id}`,
           title: `PROJECT: ${repo.name.toUpperCase()}`,
@@ -118,44 +129,64 @@ ${message}
 
   // Fetch GitHub Repos
   useEffect(() => {
-    console.log("Fetching repos...");
+    let isMounted = true;
     fetch('/api/users/satriyop/repos?sort=updated&per_page=8')
-      .then(res => {
-        console.log("Repos response status:", res.status);
-        return res.json();
-      })
-      .then(data => {
-        console.log("Repos data received:", data);
-        if (Array.isArray(data)) {
-          setRepos(data);
+      .then(async (res) => {
+        if (!res.ok) {
+          const errData = (await res.json().catch(() => null)) as { message?: string } | null;
+          throw new Error(errData?.message || `HTTP ${res.status}`);
         }
-        setLoadingRepos(false);
+        return res.json() as Promise<GithubRepo[]>;
       })
-      .catch(err => {
-        console.error("Error fetching repos", err);
-        setLoadingRepos(false);
+      .then((data) => {
+        if (isMounted) {
+          if (Array.isArray(data)) {
+            setRepos(data);
+          }
+          setLoadingRepos(false);
+        }
+      })
+      .catch((err: Error) => {
+        if (isMounted) {
+          setReposError(err.message);
+          setLoadingRepos(false);
+        }
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Fetch GitHub Events (Commits)
   useEffect(() => {
-    console.log("Fetching events...");
+    let isMounted = true;
     fetch('/api/users/satriyop/events')
-      .then(res => {
-        console.log("Events response status:", res.status);
-        return res.json();
-      })
-      .then(data => {
-        console.log("Events data received:", data);
-        if (Array.isArray(data)) {
-          setGithubEvents(data);
+      .then(async (res) => {
+        if (!res.ok) {
+          const errData = (await res.json().catch(() => null)) as { message?: string } | null;
+          throw new Error(errData?.message || `HTTP ${res.status}`);
         }
-        setLoadingEvents(false);
+        return res.json() as Promise<GithubEvent[]>;
       })
-      .catch(err => {
-        console.error("Error fetching events", err);
-        setLoadingEvents(false);
+      .then((data) => {
+        if (isMounted) {
+          if (Array.isArray(data)) {
+            setGithubEvents(data);
+          }
+          setLoadingEvents(false);
+        }
+      })
+      .catch((err: Error) => {
+        if (isMounted) {
+          setEventsError(err.message);
+          setLoadingEvents(false);
+        }
       });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Keyboard Shortcuts Implementation
@@ -330,6 +361,10 @@ ${message}
                       alt="satriyop's GitHub contributions" 
                       className="w-full min-w-[600px] pixelated-img opacity-90 hover:opacity-100 transition-opacity"
                       style={{ imageRendering: 'pixelated' }}
+                      onLoad={scrollChartToEnd}
+                      onError={(e) => {
+                        e.currentTarget.style.opacity = '0.5';
+                      }}
                     />
                   </div>
                   <div className="mt-4 text-[10px] text-right text-[#fcf4cf]/40 italic">
@@ -343,6 +378,10 @@ ${message}
                   <div className="space-y-4">
                     {loadingEvents ? (
                       <div className="text-[#55a630] font-bold animate-pulse text-sm">Loading datastream...</div>
+                    ) : eventsError ? (
+                      <div className="text-[#ae2012] text-xs font-mono">
+                        SIGNAL INTERRUPT: {eventsError}
+                      </div>
                     ) : (
                       githubEvents
                         .filter(event => event.type === 'PushEvent')
@@ -351,7 +390,7 @@ ${message}
                           <CommitItem key={event.id} event={event} onClick={(msg, sha) => handleCommitClick(event, msg, sha)} />
                         ))
                     )}
-                    {!loadingEvents && githubEvents.filter(e => e.type === 'PushEvent').length === 0 && (
+                    {!loadingEvents && !eventsError && githubEvents.filter(e => e.type === 'PushEvent').length === 0 && (
                       <div className="opacity-50 text-sm">No recent logs found.</div>
                     )}
                   </div>
@@ -368,6 +407,10 @@ ${message}
                         <div className="text-[#2b2626] font-bold text-xs uppercase pixel-font">Loading...</div>
                       </div>
                     ))
+                  ) : reposError ? (
+                    <div className="col-span-full text-center p-8 border-2 border-dashed border-[#ae2012]/40 text-[#ae2012] font-mono text-xs">
+                      SECTOR OFFLINE: {reposError}
+                    </div>
                   ) : repos.length > 0 ? (
                     repos.map(repo => (
                       <a 
@@ -411,26 +454,61 @@ ${message}
 
           {currentPage === Page.BLOG && (
             <div className="space-y-12 md:space-y-16">
-              <h2 className="text-4xl md:text-6xl text-[#6eb6ff] pixel-font border-l-8 border-[#6eb6ff] pl-4 md:pl-6">DATA_STREAM</h2>
-              {loadingEvents ? (
-                <div className="inventory-border p-8 text-center animate-pulse">
-                  <span className="text-xl pixel-font text-[#6eb6ff]">CONNECTING TO SATELLITE...</span>
-                </div>
-              ) : (
-                <div className="grid gap-4 md:gap-6">
-                  {githubEvents
-                    .filter(event => event.type === 'PushEvent')
-                    .slice(0, 10) // Show last 10 push events
-                    .map(event => (
-                      <CommitItem key={event.id} event={event} onClick={(msg, sha) => handleCommitClick(event, msg, sha)} />
+              {/* Written Posts / Transmissions */}
+              {BLOG_POSTS.length > 0 && (
+                <div className="space-y-6">
+                  <h2 className="text-3xl md:text-5xl text-[#55a630] pixel-font border-l-8 border-[#55a630] pl-4 md:pl-6">
+                    TRANSMISSIONS
+                  </h2>
+                  <div className="grid gap-4 md:gap-6">
+                    {BLOG_POSTS.map(post => (
+                      <div
+                        key={post.id}
+                        onClick={() => navigate(Page.POST, post)}
+                        className="inventory-border p-4 md:p-6 cursor-pointer hover:bg-[#352f2f] transition-all group block"
+                      >
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="text-[#6eb6ff] font-bold text-xs uppercase tracking-widest">{post.date}</span>
+                          <span className="text-[#55a630] text-xs font-mono group-hover:text-white">ACCESS RECORD &gt;</span>
+                        </div>
+                        <h3 className="text-lg md:text-2xl font-bold pixel-font group-hover:text-[#6eb6ff] transition-colors">
+                          {post.title}
+                        </h3>
+                      </div>
                     ))}
+                  </div>
+                </div>
+              )}
+
+              {/* Live GitHub Push Stream */}
+              <div className="space-y-6">
+                <h2 className="text-3xl md:text-5xl text-[#6eb6ff] pixel-font border-l-8 border-[#6eb6ff] pl-4 md:pl-6">
+                  DATA_STREAM
+                </h2>
+                {loadingEvents ? (
+                  <div className="inventory-border p-8 text-center animate-pulse">
+                    <span className="text-xl pixel-font text-[#6eb6ff]">CONNECTING TO SATELLITE...</span>
+                  </div>
+                ) : eventsError ? (
+                  <div className="inventory-border p-8 text-center text-[#ae2012] font-mono text-sm">
+                    SATELLITE COMM ERROR: {eventsError}
+                  </div>
+                ) : (
+                  <div className="grid gap-4 md:gap-6">
+                    {githubEvents
+                      .filter(event => event.type === 'PushEvent')
+                      .slice(0, 10)
+                      .map(event => (
+                        <CommitItem key={event.id} event={event} onClick={(msg, sha) => handleCommitClick(event, msg, sha)} />
+                      ))}
                     {githubEvents.filter(event => event.type === 'PushEvent').length === 0 && (
                       <div className="inventory-border p-8 text-center text-[#ae2012]">
                         NO DATA SIGNALS DETECTED.
                       </div>
                     )}
-                </div>
-              )}
+                  </div>
+                )}
+              </div>
             </div>
           )}
 

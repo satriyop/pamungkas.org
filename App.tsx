@@ -12,6 +12,7 @@ function isXSignalItem(value: unknown): value is XSignal {
   return (
     typeof item.id === 'string' &&
     typeof item.url === 'string' &&
+    (item.url.startsWith('https://x.com/') || item.url.startsWith('https://twitter.com/')) &&
     typeof item.created_at === 'string' &&
     typeof item.text === 'string'
   );
@@ -661,7 +662,7 @@ ${message}
                         key={item.id}
                         href={item.url}
                         target="_blank"
-                        rel="noopener"
+                        rel="noopener noreferrer"
                         className="inventory-border p-4 md:p-6 hover:bg-[#352f2f] transition-all group block no-underline"
                       >
                         <div className="flex justify-between items-center mb-2 gap-4">
@@ -672,7 +673,7 @@ ${message}
                             OPEN ON X &gt;
                           </span>
                         </div>
-                        <p className="text-sm md:text-base leading-relaxed opacity-90 font-mono line-clamp-3">
+                        <p className="text-sm md:text-base leading-relaxed opacity-90 font-mono line-clamp-3 whitespace-pre-line">
                           {item.text}
                         </p>
                       </a>

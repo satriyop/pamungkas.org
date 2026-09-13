@@ -62,33 +62,3 @@ Dropped out to start a small company focusing on electrical and green energy sol
 4. Nathan Bell (Telkomtelstra)
 5. Erik Meijer (Telkomtelstra)
 `;
-
-export const BLOG_POSTS = [
-  {
-    id: 'intro',
-    title: 'The Ghost in the Shell',
-    date: '2024-05-20',
-    content: `
-# The Ghost in the Shell
-
-Why do we keep building the same websites?
-Containers, padding, white space, accessibility... it's all so... expected.
-
-This domain, pamungkas.org, is my digital residue. It's not here to follow your rules.
-It's here to exist as a terminal of thought.
-
-Stay tuned for more updates on system architecture and the beauty of broken things.
-    `
-  },
-  {
-    id: 'networks',
-    title: 'Networking in the 2020s',
-    date: '2024-06-12',
-    content: `
-# Networking in the 2020s
-
-From Cisco CCNA days to modern SDN. The hardware is getting smarter, but the logic remains fundamentally human.
-Protocols are just conversations we've agreed to have at high speed.
-    `
-  }
-];

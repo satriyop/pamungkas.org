@@ -1,0 +1,44 @@
+[
+  {
+    "id": "2086278017693917263",
+    "url": "https://x.com/satriyop/status/2086278017693917263",
+    "created_at": "2026-08-09T02:26:55.000Z",
+    "text": "Hermes from @NousResearch is far more predictable and convienence to use than @openclaw .\n\nOpenclaw keeps making mistakes, hermes just learn the mistakes and let the user enjoy the model capabilities. I might be doing it wrong. But that the impression i have by now. Maybe it wins"
+  },
+  {
+    "id": "2084802478806278574",
+    "url": "https://x.com/satriyop/status/2084802478806278574",
+    "created_at": "2026-08-05T00:43:39.000Z",
+    "text": "The directions seem changed. Model high = vertical capability. Not necessary better orchestrator (see longer horizon, strategize, etc). Especially models from @AnthropicAI . Opus 5 as orchestrator is nightmare.\n\nIn a way that makes sense. Just like fellow humans, the high capable"
+  },
+  {
+    "id": "2084800890960228751",
+    "url": "https://x.com/satriyop/status/2084800890960228751",
+    "created_at": "2026-08-05T00:37:20.000Z",
+    "text": "Cheatsheet biar hemat langganan ai atau token based:\n1. Setup awal project : wajib pakai model flagship, harness flagship. Pokoknya yg paling bagus (biasanya jg paling mahal).\n2. Fokus sama bikin arsitektur dan documentasi (ADR) sama beberapa dokumen yg kontekstual utk harness."
+  },
+  {
+    "id": "2084777029510349043",
+    "url": "https://x.com/satriyop/status/2084777029510349043",
+    "created_at": "2026-08-04T23:02:31.000Z",
+    "text": "Since i found that opus 5 from @claudeai sucks (especially DX, verbose output with many jargons). I find  counterintuitive approach to overcome this. Use second grade model : Sonnet 5 as orchestrator(planner), that invoke Opus5 as implementation agent. So far, its way better than"
+  },
+  {
+    "id": "2084115523135262863",
+    "url": "https://x.com/satriyop/status/2084115523135262863",
+    "created_at": "2026-08-03T03:13:56.000Z",
+    "text": "At the end of the story, there are only 2 options/path when we want to decide something now :\n- deterministic way\n- probabilistic way\n\nAnd thanks to ai lab/company @OpenAI @AnthropicAI @deepseek_ai \n\nThat latter become more prominent lately. \n\nOne thing i worry about : we lost"
+  },
+  {
+    "id": "2083633122139361604",
+    "url": "https://x.com/satriyop/status/2083633122139361604",
+    "created_at": "2026-08-01T19:17:03.000Z",
+    "text": "Kenapa utk kerjaan coding, pakai bahasa inggris lebih efektif dibanding prompt pakai bahasa indonesia. Sama @grok @OpenAI @claudeai , malah yg lebih mendekati bisa efektif pakai @deepseek_ai ."
+  },
+  {
+    "id": "2083236511282278745",
+    "url": "https://x.com/satriyop/status/2083236511282278745",
+    "created_at": "2026-07-31T17:01:03.000Z",
+    "text": "Untuk development web based, @grok udah okay banget lah. Sat set, slicingnya okay, tastenya ok. Tapi begitu slicing UI  ke implementasi TUI( textual package), kenapa bloon banget ? Python based lho ini, apa karena training datanya tentang implementasi textual kurang?"
+  }
+]

@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { Page, BlogPost, GithubEvent, GithubRepo, GithubReadmeResponse, GithubCommitDetail } from './types';
-import { RESUME_MD, BLOG_POSTS } from './constants';
+import { BLOG_POSTS } from './constants';
 import MarkdownView from './components/MarkdownView';
 import CommitItem from './components/CommitItem';
+import CharacterSheet from './components/CharacterSheet';
 
 const LANGUAGE_COLORS: Record<string, string> = {
   TypeScript: '#3178c6',
@@ -525,12 +526,7 @@ ${message}
           )}
 
           {currentPage === Page.RESUME && (
-            <div className="inventory-border p-6 md:p-16">
-              <div className="mb-8 md:mb-12 border-b-4 border-[#55a630] pb-4 md:pb-6">
-                <h2 className="text-3xl md:text-5xl text-[#55a630] pixel-font break-all md:break-normal">ADVENTURER_BIO.TXT</h2>
-              </div>
-              <MarkdownView content={RESUME_MD} />
-            </div>
+            <CharacterSheet />
           )}
 
           {currentPage === Page.BLOG && (

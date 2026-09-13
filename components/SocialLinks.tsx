@@ -52,13 +52,14 @@ export const SidebarSocials: React.FC = () => {
   };
 
   return (
-    <div className="flex flex-col items-center gap-2">
-      <div className="text-[9px] font-mono text-[#55a630] font-bold uppercase tracking-wider">
+    <div className="flex flex-col items-center gap-1.5 w-full px-2">
+      <div className="text-[9px] font-mono text-[#55a630] font-bold uppercase tracking-widest">
         COMMS
       </div>
-      <div className="flex flex-col gap-1.5">
-        {SOCIAL_LINKS.map((link) => {
+      <div className="grid grid-cols-2 gap-1.5 justify-items-center">
+        {SOCIAL_LINKS.map((link, idx) => {
           const isEmail = link.id === 'email';
+          const isLast = idx === SOCIAL_LINKS.length - 1;
           return (
             <a
               key={link.id}
@@ -68,6 +69,8 @@ export const SidebarSocials: React.FC = () => {
               onClick={isEmail ? handleCopyEmail : undefined}
               title={isEmail ? (copied ? 'COPIED TO CLIPBOARD!' : 'CLICK TO COPY: satriyo@pamungkas.org') : `${link.name}: ${link.label}`}
               className={`w-7 h-7 flex items-center justify-center border-2 border-[#2b2626] bg-[#352f2f] text-[#fcf4cf] hover:text-[#55a630] hover:border-[#55a630] hover:bg-[#2b2626] transition-all rounded-sm pixel-press ${
+                isLast ? 'col-span-2' : ''
+              } ${
                 isEmail && copied ? 'border-[#55a630] text-[#55a630] bg-[#2b2626]' : ''
               }`}
             >
@@ -76,6 +79,11 @@ export const SidebarSocials: React.FC = () => {
           );
         })}
       </div>
+      {copied && (
+        <span className="text-[8px] font-mono text-[#55a630] font-bold animate-pulse">
+          COPIED!
+        </span>
+      )}
     </div>
   );
 };

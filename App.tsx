@@ -258,37 +258,71 @@ ${message}
       </header>
 
       {/* Desktop Inventory-Style Sidebar - Carved Wood Aesthetic */}
-      <aside className="hidden md:flex fixed left-0 top-0 h-full w-28 border-r-4 border-[#2b2626] flex-col items-center justify-between py-8 z-50 bg-[#4e4444] shadow-[4px_0px_0px_#221e1e] overflow-y-auto">
-        <div className="vertical-text font-bold text-3xl tracking-[0.2em] rotate-180 text-[#55a630] select-none pixel-font crt-glow">
-          PAMUNGKAS.ORG
+      <aside className="hidden md:flex fixed left-0 top-0 h-full w-28 border-r-4 border-[#2b2626] flex-col items-center justify-between py-6 z-50 bg-[#4e4444] shadow-[4px_0px_0px_#221e1e] overflow-y-auto">
+        {/* Brand Crest */}
+        <div 
+          onClick={() => navigate(Page.HOME)} 
+          className="flex flex-col items-center cursor-pointer group select-none"
+          title="Return to Home [1]"
+        >
+          <div className="w-10 h-10 border-2 border-[#55a630] bg-[#352f2f] shadow-[2px_2px_0_#221e1e] flex items-center justify-center text-[#55a630] font-black pixel-font text-lg group-hover:bg-[#55a630] group-hover:text-white transition-all pixel-press">
+            P
+          </div>
+          <span className="text-[9px] font-mono font-bold text-[#55a630] mt-1 tracking-wider">
+            PAMUNGKAS
+          </span>
+          <span className="text-[8px] font-mono text-[#fcf4cf]/60 -mt-0.5 font-bold">
+            .ORG
+          </span>
         </div>
-        <nav className="flex flex-col gap-10">
+
+        {/* Command Navigation */}
+        <nav className="flex flex-col gap-2.5 w-full px-3">
           <button 
             onClick={() => navigate(Page.HOME)}
             title="Shortcut: 1"
-            className={`pixel-hover p-3 transform -rotate-90 origin-center text-sm font-bold tracking-tighter transition-all ${currentPage === Page.HOME ? 'bg-[#55a630] text-white scale-110 shadow-[2px_2px_0_#221e1e]' : 'text-[#fcf4cf] border-2 border-[#fcf4cf]'}`}
+            className={`w-full py-2 px-1 text-center font-bold text-xs pixel-font tracking-wider transition-all pixel-press border-2 ${
+              currentPage === Page.HOME 
+                ? 'bg-[#55a630] text-white border-[#55a630] shadow-[2px_2px_0_#221e1e]' 
+                : 'text-[#fcf4cf] border-[#2b2626] bg-[#352f2f] hover:border-[#fcf4cf]'
+            }`}
           >
-            MENU
+            [1] MENU
           </button>
           <button 
             onClick={() => navigate(Page.RESUME)}
             title="Shortcut: 2"
-            className={`pixel-hover p-3 transform -rotate-90 origin-center text-sm font-bold tracking-tighter transition-all ${currentPage === Page.RESUME ? 'bg-[#55a630] text-white scale-110 shadow-[2px_2px_0_#221e1e]' : 'text-[#fcf4cf] border-2 border-[#fcf4cf]'}`}
+            className={`w-full py-2 px-1 text-center font-bold text-xs pixel-font tracking-wider transition-all pixel-press border-2 ${
+              currentPage === Page.RESUME 
+                ? 'bg-[#55a630] text-white border-[#55a630] shadow-[2px_2px_0_#221e1e]' 
+                : 'text-[#fcf4cf] border-[#2b2626] bg-[#352f2f] hover:border-[#fcf4cf]'
+            }`}
           >
-            BIO
+            [2] BIO
           </button>
           <button 
             onClick={() => navigate(Page.BLOG)}
             title="Shortcut: 3"
-            className={`pixel-hover p-3 transform -rotate-90 origin-center text-sm font-bold tracking-tighter transition-all ${currentPage === Page.BLOG ? 'bg-[#55a630] text-white scale-110 shadow-[2px_2px_0_#221e1e]' : 'text-[#fcf4cf] border-2 border-[#fcf4cf]'}`}
+            className={`w-full py-2 px-1 text-center font-bold text-xs pixel-font tracking-wider transition-all pixel-press border-2 ${
+              currentPage === Page.BLOG 
+                ? 'bg-[#55a630] text-white border-[#55a630] shadow-[2px_2px_0_#221e1e]' 
+                : 'text-[#fcf4cf] border-[#2b2626] bg-[#352f2f] hover:border-[#fcf4cf]'
+            }`}
           >
-            DATA
+            [3] DATA
           </button>
         </nav>
+
+        {/* Comms Array */}
         <SidebarSocials />
-        <div className="flex flex-col gap-2 items-center">
-            <div className="w-2 h-2 bg-[#ae2012] rounded-full animate-pulse"></div>
-            <div className="text-[10px] text-[#55a630] font-bold">LVL. 20</div>
+
+        {/* Status Beacon */}
+        <div className="flex flex-col items-center gap-1 select-none">
+          <div className="flex items-center gap-1.5">
+            <span className="w-2 h-2 bg-[#55a630] rounded-full animate-pulse"></span>
+            <span className="text-[9px] font-mono font-bold text-[#55a630]">ONLINE</span>
+          </div>
+          <div className="text-[9px] font-mono text-[#fcf4cf]/75 font-bold">LVL. 20</div>
         </div>
       </aside>
 

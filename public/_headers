@@ -1,0 +1,20 @@
+# Cloudflare Pages Security & Cache Headers
+
+/*
+  # Content Security Policy
+  Content-Security-Policy: default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' https://ghchart.rshah.org https://avatars.githubusercontent.com data:; connect-src 'self'; frame-ancestors 'none'; base-uri 'self'; form-action 'self';
+
+  # Clickjacking Prevention
+  X-Frame-Options: DENY
+
+  # MIME Sniffing Protection
+  X-Content-Type-Options: nosniff
+
+  # Referrer Policy
+  Referrer-Policy: strict-origin-when-cross-origin
+
+  # Feature & Hardware Access Policy
+  Permissions-Policy: camera=(), microphone=(), geolocation=(), browsing-topics=()
+
+  # HTTP Strict Transport Security (HSTS)
+  Strict-Transport-Security: max-age=31536000; includeSubDomains; preload

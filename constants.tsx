@@ -1,8 +1,16 @@
 
+export const SOCIAL_LINKS = [
+  { id: 'email', name: 'EMAIL', label: 'satriyo@pamungkas.org', url: 'mailto:satriyo@pamungkas.org', type: 'email' },
+  { id: 'linkedin', name: 'LINKEDIN', label: 'in/satriyo-pamungkas', url: 'https://www.linkedin.com/in/satriyo-pamungkas/', type: 'link' },
+  { id: 'github', name: 'GITHUB', label: '@satriyop', url: 'https://github.com/satriyop', type: 'link' },
+  { id: 'x', name: 'X', label: '@satriyop', url: 'https://x.com/satriyop', type: 'link' },
+  { id: 'instagram', name: 'INSTAGRAM', label: '@satriyop', url: 'https://instagram.com/satriyop', type: 'link' },
+] as const;
+
 export const RESUME_MD = `
 # SATRIYO PAMUNGKAS
 **System Architect / Software Developer / Problem Solver**
-*+62817831441 | satriyo@pamungkas.com*
+*+62817831441 | satriyo@pamungkas.org*
 
 ---
 

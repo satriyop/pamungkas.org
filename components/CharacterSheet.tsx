@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { RESUME_MD } from '../constants';
+import { RESUME_MD, SOCIAL_LINKS } from '../constants';
 import MarkdownView from './MarkdownView';
+import { SocialIcon } from './SocialLinks';
 
 interface Stat {
   label: string;
@@ -173,11 +174,33 @@ const CharacterSheet: React.FC = () => {
                 <div className="inline-block mt-2 px-2.5 py-0.5 bg-[#55a630] text-white font-bold text-xs pixel-font shadow-[2px_2px_0_#221e1e]">
                   LVL. 20 LEGENDARY ARCHITECT
                 </div>
-                <div className="mt-3 text-xs font-mono text-[#6eb6ff] flex flex-col gap-1">
-                  <span>CLASS: SYSTEM ARCHITECT</span>
+                <div className="mt-3 text-xs font-mono flex flex-col gap-1 w-full text-center">
+                  <span className="text-[#6eb6ff]">CLASS: SYSTEM ARCHITECT</span>
                   <span className="text-[#fcf4cf]/75">EXP: 15+ YEARS</span>
-                  <span className="text-[#55a630]">+62817831441</span>
-                  <span className="text-[#fcf4cf]/90">satriyo@pamungkas.com</span>
+                  <span className="text-[#55a630] font-bold">+62817831441</span>
+                  <a
+                    href="mailto:satriyo@pamungkas.org"
+                    title="Click to send email"
+                    className="text-[#fcf4cf]/90 hover:text-[#55a630] transition-colors underline break-all"
+                  >
+                    satriyo@pamungkas.org
+                  </a>
+                </div>
+
+                {/* Comms Badges */}
+                <div className="mt-3 flex flex-wrap justify-center gap-1.5 pt-3 border-t border-[#352f2f] w-full">
+                  {SOCIAL_LINKS.map((link) => (
+                    <a
+                      key={link.id}
+                      href={link.url}
+                      target={link.id === 'email' ? '_self' : '_blank'}
+                      rel={link.id === 'email' ? undefined : 'noopener noreferrer'}
+                      title={`${link.name}: ${link.label}`}
+                      className="w-7 h-7 flex items-center justify-center bg-[#352f2f] hover:bg-[#2b2626] border border-[#2b2626] hover:border-[#55a630] text-[#fcf4cf] hover:text-[#55a630] rounded-sm transition-all pixel-press"
+                    >
+                      <SocialIcon id={link.id} className="w-3.5 h-3.5" />
+                    </a>
+                  ))}
                 </div>
               </div>
 

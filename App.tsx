@@ -5,6 +5,7 @@ import { BLOG_POSTS } from './constants';
 import MarkdownView from './components/MarkdownView';
 import CommitItem from './components/CommitItem';
 import CharacterSheet from './components/CharacterSheet';
+import { SidebarSocials, HeroSocials, SocialIcon } from './components/SocialLinks';
 
 const LANGUAGE_COLORS: Record<string, string> = {
   TypeScript: '#3178c6',
@@ -242,7 +243,14 @@ ${message}
         <div className="font-bold text-lg tracking-wider text-[#55a630] pixel-font crt-glow">
           PAMUNGKAS.ORG
         </div>
-        <div className="flex items-center gap-2 text-xs font-mono">
+        <div className="flex items-center gap-2.5 text-xs font-mono">
+          <a
+            href="mailto:satriyo@pamungkas.org"
+            title="Email: satriyo@pamungkas.org"
+            className="w-7 h-7 flex items-center justify-center bg-[#352f2f] border border-[#2b2626] text-[#6eb6ff] hover:text-[#55a630] hover:border-[#55a630] rounded-sm transition-all"
+          >
+            <SocialIcon id="email" className="w-3.5 h-3.5" />
+          </a>
           <span className="w-2 h-2 bg-[#55a630] rounded-full animate-pulse"></span>
           <span className="text-[#fcf4cf] font-bold">LVL. 20</span>
           <span className="text-[#6eb6ff] font-bold">ONLINE</span>
@@ -250,7 +258,7 @@ ${message}
       </header>
 
       {/* Desktop Inventory-Style Sidebar - Carved Wood Aesthetic */}
-      <aside className="hidden md:flex fixed left-0 top-0 h-full w-28 border-r-4 border-[#2b2626] flex-col items-center justify-between py-12 z-50 bg-[#4e4444] shadow-[4px_0px_0px_#221e1e]">
+      <aside className="hidden md:flex fixed left-0 top-0 h-full w-28 border-r-4 border-[#2b2626] flex-col items-center justify-between py-8 z-50 bg-[#4e4444] shadow-[4px_0px_0px_#221e1e] overflow-y-auto">
         <div className="vertical-text font-bold text-3xl tracking-[0.2em] rotate-180 text-[#55a630] select-none pixel-font crt-glow">
           PAMUNGKAS.ORG
         </div>
@@ -277,6 +285,7 @@ ${message}
             DATA
           </button>
         </nav>
+        <SidebarSocials />
         <div className="flex flex-col gap-2 items-center">
             <div className="w-2 h-2 bg-[#ae2012] rounded-full animate-pulse"></div>
             <div className="text-[10px] text-[#55a630] font-bold">LVL. 20</div>
@@ -329,6 +338,7 @@ ${message}
           <div className="absolute -top-4 -right-4 md:-right-8 bg-[#ae2012] text-white text-[10px] md:text-xs px-2 md:px-3 py-1 font-bold transform rotate-6 border-2 border-white shadow-lg whitespace-nowrap">
             LEGENDARY ARCHITECT
           </div>
+          <HeroSocials />
         </header>
 
         {/* Dynamic Content */}

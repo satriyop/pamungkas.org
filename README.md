@@ -12,6 +12,7 @@ Built with **React 19**, **TypeScript**, **Tailwind CSS v4**, and **Cloudflare P
 - **Live GitHub Activity Streams:** Dynamic fetching of repositories, push events, and recent commit history with in-memory caching and request deduplication.
 - **Secure Cloudflare Edge Proxy:** Hardened Cloudflare Pages Functions reverse proxying GitHub API with strict route/method whitelisting and edge caching headers.
 - **XSS-Safe Markdown Rendering:** Markdown view for project READMEs, developer bio, and chronicles sanitized via DOMPurify.
+- **X_SIGNAL:** DATA page feed of recent X posts, loaded from a static same-origin JSON file.
 
 ---
 
@@ -75,3 +76,9 @@ This site is designed for zero-config deployment on **Cloudflare Pages**:
 - **Build output directory:** `dist`
 - **Functions directory:** `functions`
 - **Environment variables:** Set `GITHUB_TOKEN` in Cloudflare Pages Dashboard under **Settings > Environment Variables**.
+
+---
+
+## X_SIGNAL
+
+The DATA page **X_SIGNAL** section is a **static JSON** file at `public/x-signal.json` (served same-origin as `/x-signal.json`). **Batara** refreshes this file. This app does **not** call the X API, does not proxy X, and does not embed X widgets.

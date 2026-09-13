@@ -6,6 +6,13 @@ export interface BlogPost {
   content: string;
 }
 
+export interface XSignal {
+  id: string;
+  url: string;
+  created_at: string;
+  text: string;
+}
+
 export interface GithubEvent {
   id: string;
   type: string;

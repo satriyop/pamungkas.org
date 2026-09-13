@@ -1,11 +1,38 @@
 
 import React, { useState, useEffect, useCallback, useRef } from 'react';
-import { Page, BlogPost, GithubEvent, GithubRepo, GithubReadmeResponse, GithubCommitDetail } from './types';
-import { BLOG_POSTS } from './constants';
+import { Page, BlogPost, GithubEvent, GithubRepo, GithubReadmeResponse, GithubCommitDetail, XSignal } from './types';
 import MarkdownView from './components/MarkdownView';
 import CommitItem from './components/CommitItem';
 import CharacterSheet from './components/CharacterSheet';
 import { SidebarSocials, HeroSocials, SocialIcon } from './components/SocialLinks';
+
+function isXSignalItem(value: unknown): value is XSignal {
+  if (!value || typeof value !== 'object') return false;
+  const item = value as Record<string, unknown>;
+  return (
+    typeof item.id === 'string' &&
+    typeof item.url === 'string' &&
+    typeof item.created_at === 'string' &&
+    typeof item.text === 'string'
+  );
+}
+
+function parseXSignal(data: unknown): XSignal[] | null {
+  if (!Array.isArray(data)) return null;
+  const items = data.filter(isXSignalItem);
+  if (data.length > 0 && items.length === 0) return null;
+  return items;
+}
+
+function formatSignalDate(iso: string): string {
+  const date = new Date(iso);
+  if (Number.isNaN(date.getTime())) return iso;
+  return date.toLocaleDateString('en-US', {
+    year: 'numeric',
+    month: 'short',
+    day: '2-digit',
+  });
+}
 
 const LANGUAGE_COLORS: Record<string, string> = {
   TypeScript: '#3178c6',
@@ -33,6 +60,9 @@ const App: React.FC = () => {
   const [eventsError, setEventsError] = useState<string | null>(null);
   const [activeProjectCommits, setActiveProjectCommits] = useState<GithubCommitDetail[]>([]);
   const [activeProjectName, setActiveProjectName] = useState<string>('');
+  const [xSignal, setXSignal] = useState<XSignal[]>([]);
+  const [loadingXSignal, setLoadingXSignal] = useState(true);
+  const [xSignalError, setXSignalError] = useState(false);
   const chartContainerRef = useRef<HTMLDivElement>(null);
 
   const triggerTransition = useCallback(() => {
@@ -195,6 +225,38 @@ ${message}
         if (isMounted) {
           setEventsError(err.message);
           setLoadingEvents(false);
+        }
+      });
+
+    return () => {
+      isMounted = false;
+    };
+  }, []);
+
+  // Fetch X_SIGNAL (static same-origin JSON — no X API)
+  useEffect(() => {
+    let isMounted = true;
+    fetch('/x-signal.json')
+      .then(async (res) => {
+        if (!res.ok) throw new Error(`HTTP ${res.status}`);
+        return res.json() as Promise<unknown>;
+      })
+      .then((data) => {
+        if (!isMounted) return;
+        const parsed = parseXSignal(data);
+        if (parsed === null) {
+          setXSignalError(true);
+          setXSignal([]);
+        } else {
+          setXSignal(parsed);
+        }
+        setLoadingXSignal(false);
+      })
+      .catch(() => {
+        if (isMounted) {
+          setXSignalError(true);
+          setXSignal([]);
+          setLoadingXSignal(false);
         }
       });
 
@@ -575,31 +637,49 @@ ${message}
 
           {currentPage === Page.BLOG && (
             <div className="space-y-12 md:space-y-16">
-              {/* Written Posts / Transmissions */}
-              {BLOG_POSTS.length > 0 && (
-                <div className="space-y-6">
-                  <h2 className="text-3xl md:text-5xl text-[#55a630] pixel-font border-l-8 border-[#55a630] pl-4 md:pl-6">
-                    TRANSMISSIONS
-                  </h2>
+              {/* X_SIGNAL — static same-origin JSON */}
+              <div className="space-y-6">
+                <h2 className="text-3xl md:text-5xl text-[#55a630] pixel-font border-l-8 border-[#55a630] pl-4 md:pl-6">
+                  X_SIGNAL
+                </h2>
+                {loadingXSignal ? (
+                  <div className="inventory-border p-8 text-center animate-pulse">
+                    <span className="text-xl pixel-font text-[#55a630]">SCANNING FREQUENCY...</span>
+                  </div>
+                ) : xSignalError ? (
+                  <div className="inventory-border p-8 text-center text-[#ae2012] font-mono text-sm">
+                    SIGNAL LOST: X_SIGNAL UNAVAILABLE.
+                  </div>
+                ) : xSignal.length === 0 ? (
+                  <div className="inventory-border p-8 text-center text-[#ae2012]">
+                    NO X SIGNALS DETECTED.
+                  </div>
+                ) : (
                   <div className="grid gap-4 md:gap-6">
-                    {BLOG_POSTS.map(post => (
-                      <div
-                        key={post.id}
-                        onClick={() => navigate(Page.POST, post)}
-                        className="inventory-border p-4 md:p-6 cursor-pointer hover:bg-[#352f2f] transition-all group block"
+                    {xSignal.map(item => (
+                      <a
+                        key={item.id}
+                        href={item.url}
+                        target="_blank"
+                        rel="noopener"
+                        className="inventory-border p-4 md:p-6 hover:bg-[#352f2f] transition-all group block no-underline"
                       >
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="text-[#6eb6ff] font-bold text-xs uppercase tracking-widest">{post.date}</span>
-                          <span className="text-[#55a630] text-xs font-mono group-hover:text-white">ACCESS RECORD &gt;</span>
+                        <div className="flex justify-between items-center mb-2 gap-4">
+                          <span className="text-[#6eb6ff] font-bold text-xs uppercase tracking-widest">
+                            {formatSignalDate(item.created_at)}
+                          </span>
+                          <span className="text-[#55a630] text-xs font-mono group-hover:text-white whitespace-nowrap">
+                            OPEN ON X &gt;
+                          </span>
                         </div>
-                        <h3 className="text-lg md:text-2xl font-bold pixel-font group-hover:text-[#6eb6ff] transition-colors">
-                          {post.title}
-                        </h3>
-                      </div>
+                        <p className="text-sm md:text-base leading-relaxed opacity-90 font-mono line-clamp-3">
+                          {item.text}
+                        </p>
+                      </a>
                     ))}
                   </div>
-                </div>
-              )}
+                )}
+              </div>
 
               {/* Live GitHub Push Stream */}
               <div className="space-y-6">

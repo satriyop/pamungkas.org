@@ -118,25 +118,26 @@ const CommitItem: React.FC<CommitItemProps> = ({ event, onClick }) => {
           onClick(message, commitSha || '');
         }
       }}
-      className="inventory-border p-3 md:p-6 cursor-pointer hover:bg-[#352f2f] transition-all group relative block no-underline w-full max-w-full"
+      className="inventory-border p-3 md:p-6 cursor-pointer hover:bg-[#352f2f] hover:-translate-y-0.5 hover:shadow-[6px_6px_0px_#221e1e] transition-all group relative block no-underline w-full max-w-full pixel-press"
     >
       <div className="flex justify-between items-center mb-2 gap-2">
-        <span className="text-[#55a630] font-bold text-[10px] md:text-xs uppercase tracking-widest truncate flex-1 min-w-0">
+        <span className="text-[#55a630] font-bold text-xs uppercase tracking-widest truncate flex-1 min-w-0">
           {event.repo.name}
         </span>
-        <span className="text-[#ae2012] text-[10px] md:text-xs font-mono whitespace-nowrap flex-shrink-0">
+        <span className="text-[#ae2012] text-xs font-mono whitespace-nowrap flex-shrink-0 bg-[#2b2626] px-1.5 py-0.5 border border-[#352f2f] rounded-sm">
           [{displaySha}]
         </span>
       </div>
       <h3
         className={`text-base md:text-xl font-bold pixel-font mb-2 group-hover:text-[#6eb6ff] transition-colors line-clamp-2 break-all ${
-          loadingMsg ? 'animate-pulse' : ''
+          loadingMsg ? 'animate-pulse text-[#6eb6ff]' : 'text-[#fcf4cf]'
         }`}
       >
         {loadingMsg ? 'DECODING TRANSMISSION...' : message}
       </h3>
-      <div className="text-right text-[#fcf4cf]/50 text-[10px] md:text-xs mt-2 md:mt-4 border-t border-[#2b2626] pt-2">
-        {date}
+      <div className="text-right text-[#fcf4cf]/75 text-xs mt-2 md:mt-4 border-t border-[#2b2626] pt-2 font-mono flex items-center justify-between">
+        <span className="text-[#6eb6ff] text-[10px] uppercase group-hover:text-[#55a630] transition-colors">&gt; VIEW COMMIT</span>
+        <span>{date}</span>
       </div>
     </a>
   );

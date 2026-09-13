@@ -315,7 +315,7 @@ ${message}
             <SocialIcon id="email" className="w-3.5 h-3.5" />
           </a>
           <span className="w-2 h-2 bg-[#55a630] rounded-full animate-pulse"></span>
-          <span className="text-[#fcf4cf] font-bold">LVL. 20</span>
+          <span className="text-[#fcf4cf] font-bold">20+ YRS</span>
           <span className="text-[#6eb6ff] font-bold">ONLINE</span>
         </div>
       </header>
@@ -385,7 +385,7 @@ ${message}
             <span className="w-2 h-2 bg-[#55a630] rounded-full animate-pulse"></span>
             <span className="text-[9px] font-mono font-bold text-[#55a630]">ONLINE</span>
           </div>
-          <div className="text-[9px] font-mono text-[#fcf4cf]/75 font-bold">LVL. 20</div>
+          <div className="text-[9px] font-mono text-[#fcf4cf]/75 font-bold">20+ YRS EXP</div>
         </div>
       </aside>
 
@@ -433,7 +433,7 @@ ${message}
             <span className="text-[#55a630] block md:translate-x-16">PAMUNGKAS</span>
           </h1>
           <div className="absolute -top-4 -right-4 md:-right-8 bg-[#ae2012] text-white text-[10px] md:text-xs px-2 md:px-3 py-1 font-bold transform rotate-6 border-2 border-white shadow-lg whitespace-nowrap">
-            LEGENDARY ARCHITECT
+            SYSTEM ARCHITECT // 20+ YRS
           </div>
           <HeroSocials />
         </header>

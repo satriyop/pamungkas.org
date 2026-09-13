@@ -172,11 +172,11 @@ const CharacterSheet: React.FC = () => {
                   SATRIYO PAMUNGKAS
                 </div>
                 <div className="inline-block mt-2 px-2.5 py-0.5 bg-[#55a630] text-white font-bold text-xs pixel-font shadow-[2px_2px_0_#221e1e]">
-                  LVL. 20 LEGENDARY ARCHITECT
+                  SR. SYSTEM ARCHITECT // 20+ YRS
                 </div>
                 <div className="mt-3 text-xs font-mono flex flex-col gap-1 w-full text-center">
                   <span className="text-[#6eb6ff]">CLASS: SYSTEM ARCHITECT</span>
-                  <span className="text-[#fcf4cf]/75">EXP: 15+ YEARS</span>
+                  <span className="text-[#fcf4cf]/75">EXP: 20+ YEARS (SINCE 2005)</span>
                   <span className="text-[#55a630] font-bold">+62817831441</span>
                   <a
                     href="mailto:satriyo@pamungkas.org"

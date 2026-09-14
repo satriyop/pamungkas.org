@@ -5,8 +5,8 @@ interface Env {
 const ALLOWED_PATH_PATTERNS = [
   // Allow user's public repos and activity events
   /^users\/satriyop\/(repos|events)$/,
-  // Allow repo readme and commit details/lists for tracked repositories
-  /^repos\/[a-zA-Z0-9._-]+\/[a-zA-Z0-9._-]+\/(readme|commits(\/[a-zA-Z0-9._-]+)?)$/,
+  // Allow repo readme and commit details/lists strictly for satriyop repositories
+  /^repos\/satriyop\/[a-zA-Z0-9._-]+\/(readme|commits(\/[a-zA-Z0-9._-]+)?)$/,
 ];
 
 const ALLOWED_QUERY_PARAMS = new Set(['per_page', 'page', 'sort', 'direction']);

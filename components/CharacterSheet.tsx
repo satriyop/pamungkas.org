@@ -177,7 +177,7 @@ const CharacterSheet: React.FC = () => {
                 <div className="mt-3 text-xs font-mono flex flex-col gap-1 w-full text-center">
                   <span className="text-[#6eb6ff]">CLASS: SYSTEM ARCHITECT</span>
                   <span className="text-[#fcf4cf]/75">EXP: 20+ YEARS (SINCE 2005)</span>
-                  <span className="text-[#55a630] font-bold">+62817831441</span>
+                  <span className="text-[#55a630] font-bold">LOC: INDONESIA // REMOTE</span>
                   <a
                     href="mailto:satriyo@pamungkas.org"
                     title="Click to send email"

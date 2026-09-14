@@ -10,7 +10,7 @@ export const SOCIAL_LINKS = [
 export const RESUME_MD = `
 # SATRIYO PAMUNGKAS
 **System Architect / Software Developer / Problem Solver**
-*+62817831441 | satriyo@pamungkas.org*
+*satriyo@pamungkas.org | linkedin.com/in/satriyo-pamungkas*
 
 ---
 

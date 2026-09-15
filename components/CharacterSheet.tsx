@@ -41,14 +41,14 @@ const MISSIONS = [
     client: 'Indonesian Army (Korem 074)',
     role: 'Supporting Zona Integrasi Program, building agents of change.',
     badge: 'DEFENSE',
-    badgeColor: 'border-[#ae2012] text-[#fcf4cf] bg-[#ae2012]/30',
+    badgeColor: 'border-[#ff595e] text-[#fcf4cf] bg-[#ff595e]/25',
   },
   {
     year: '2024',
     client: 'Presidential Security Force (Paspampres)',
     role: 'Assisting for KTT G20, planning risk management and security instruments.',
     badge: 'PRESIDENTIAL',
-    badgeColor: 'border-[#ae2012] text-[#fcf4cf] bg-[#ae2012]/30',
+    badgeColor: 'border-[#ff595e] text-[#fcf4cf] bg-[#ff595e]/25',
   },
   {
     year: '2023',
@@ -115,7 +115,7 @@ const CharacterSheet: React.FC = () => {
             <span className="w-2 h-2 rounded-full bg-[#55a630] animate-pulse"></span>
             CONFIDENTIAL ARCHIVE // OPERATIVE DOSSIER
           </div>
-          <h2 className="text-3xl md:text-5xl text-[#55a630] pixel-font m-0 mt-1">
+          <h2 className="text-3xl md:text-5xl text-[#55a630] pixel-font m-0 mt-1 glow-green">
             ADVENTURER_BIO.TXT
           </h2>
         </div>
@@ -176,7 +176,7 @@ const CharacterSheet: React.FC = () => {
                 </div>
                 <div className="mt-3 text-xs font-mono flex flex-col gap-1 w-full text-center">
                   <span className="text-[#6eb6ff]">CLASS: SYSTEM ARCHITECT</span>
-                  <span className="text-[#fcf4cf]/75">EXP: 20+ YEARS (SINCE 2005)</span>
+                  <span className="text-[#fcf4cf]/75 tabular-nums">EXP: 20+ YEARS (SINCE 2005)</span>
                   <span className="text-[#55a630] font-bold">LOC: INDONESIA // REMOTE</span>
                   <a
                     href="mailto:satriyo@pamungkas.org"
@@ -207,7 +207,7 @@ const CharacterSheet: React.FC = () => {
               {/* RPG Attributes Grid */}
               <div className="lg:col-span-2 space-y-4">
                 <div className="flex items-center justify-between border-b border-[#2b2626] pb-2">
-                  <h3 className="text-lg font-bold pixel-font text-[#6eb6ff]">CORE ATTRIBUTES</h3>
+                  <h3 className="text-lg font-bold pixel-font text-[#6eb6ff] glow-cyan">CORE ATTRIBUTES</h3>
                   <span className="text-xs font-mono text-[#55a630]">TIER: ELITE</span>
                 </div>
 
@@ -218,7 +218,7 @@ const CharacterSheet: React.FC = () => {
                         <span className="text-xs font-bold font-mono text-[#55a630]">
                           [{stat.label}] {stat.name}
                         </span>
-                        <span className="text-xs font-bold font-mono text-[#6eb6ff]">{stat.value}/100</span>
+                        <span className="text-xs font-bold font-mono text-[#6eb6ff] tabular-nums">{stat.value}/100</span>
                       </div>
                       {/* 8-bit Meter Bar */}
                       <div className="w-full h-2.5 bg-[#2b2626] border border-[#2b2626] rounded-sm overflow-hidden mb-1.5">
@@ -245,7 +245,7 @@ const CharacterSheet: React.FC = () => {
           <div className="inventory-border p-6 md:p-8">
             <div className="flex justify-between items-center mb-6 border-b border-[#2b2626] pb-3">
               <div>
-                <h3 className="text-xl md:text-2xl font-bold pixel-font text-[#6eb6ff]">
+                <h3 className="text-xl md:text-2xl font-bold pixel-font text-[#6eb6ff] glow-cyan">
                   EQUIPPED CERTIFICATIONS
                 </h3>
                 <p className="text-xs font-mono text-[#fcf4cf]/75 mt-0.5">
@@ -282,7 +282,7 @@ const CharacterSheet: React.FC = () => {
 
           {/* 3. Tech Proficiencies */}
           <div className="inventory-border p-6 md:p-8">
-            <h3 className="text-xl md:text-2xl font-bold pixel-font text-[#6eb6ff] mb-2">
+            <h3 className="text-xl md:text-2xl font-bold pixel-font text-[#6eb6ff] mb-2 glow-cyan">
               DISCIPLINE PROFICIENCIES
             </h3>
             <p className="text-xs font-mono text-[#fcf4cf]/75 mb-6">
@@ -311,14 +311,14 @@ const CharacterSheet: React.FC = () => {
           <div className="inventory-border p-6 md:p-8">
             <div className="flex justify-between items-center mb-6 border-b border-[#2b2626] pb-3">
               <div>
-                <h3 className="text-xl md:text-2xl font-bold pixel-font text-[#6eb6ff]">
+                <h3 className="text-xl md:text-2xl font-bold pixel-font text-[#6eb6ff] glow-cyan">
                   SPECIAL MISSIONS & CAMPAIGNS
                 </h3>
                 <p className="text-xs font-mono text-[#fcf4cf]/75 mt-0.5">
                   Strategic defense, government, and enterprise initiatives
                 </p>
               </div>
-              <span className="text-xs font-mono text-[#ae2012] animate-pulse">● CLEARANCE: HIGH</span>
+              <span className="text-xs font-mono text-[#ff595e] animate-pulse glow-red">● CLEARANCE: HIGH</span>
             </div>
 
             <div className="space-y-4">
@@ -329,7 +329,7 @@ const CharacterSheet: React.FC = () => {
                 >
                   <div className="space-y-1">
                     <div className="flex items-center gap-2 flex-wrap">
-                      <span className="text-xs font-mono text-[#55a630] font-bold">[{m.year}]</span>
+                      <span className="text-xs font-mono text-[#55a630] font-bold tabular-nums">[{m.year}]</span>
                       <span className="font-bold pixel-font text-base text-[#fcf4cf]">{m.client}</span>
                     </div>
                     <p className="text-xs font-mono text-[#fcf4cf]/85 leading-relaxed">
@@ -348,7 +348,7 @@ const CharacterSheet: React.FC = () => {
 
           {/* 5. Guild History (Corporate Experience) */}
           <div className="inventory-border p-6 md:p-8">
-            <h3 className="text-xl md:text-2xl font-bold pixel-font text-[#6eb6ff] mb-2">
+            <h3 className="text-xl md:text-2xl font-bold pixel-font text-[#6eb6ff] mb-2 glow-cyan">
               GUILD RECORD // CORPORATE HISTORY
             </h3>
             <p className="text-xs font-mono text-[#fcf4cf]/75 mb-6">
@@ -363,7 +363,7 @@ const CharacterSheet: React.FC = () => {
                     <span className="font-bold pixel-font text-base text-[#55a630] group-hover:text-white transition-colors">
                       {corp.org} — <span className="text-[#fcf4cf]">{corp.role}</span>
                     </span>
-                    <span className="text-xs font-mono text-[#6eb6ff] bg-[#2b2626] px-2 py-0.5 rounded border border-[#352f2f]">
+                    <span className="text-xs font-mono text-[#6eb6ff] bg-[#2b2626] px-2 py-0.5 rounded border border-[#352f2f] tabular-nums">
                       {corp.period}
                     </span>
                   </div>
@@ -379,7 +379,7 @@ const CharacterSheet: React.FC = () => {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Education */}
             <div className="inventory-border p-6">
-              <h3 className="text-lg font-bold pixel-font text-[#6eb6ff] mb-4 border-b border-[#2b2626] pb-2">
+              <h3 className="text-lg font-bold pixel-font text-[#6eb6ff] mb-4 border-b border-[#2b2626] pb-2 glow-cyan">
                 ACADEMY TRAINING
               </h3>
               <div className="space-y-4 font-mono text-xs">
@@ -403,7 +403,7 @@ const CharacterSheet: React.FC = () => {
             {/* Honors & References */}
             <div className="inventory-border p-6 flex flex-col justify-between">
               <div>
-                <h3 className="text-lg font-bold pixel-font text-[#6eb6ff] mb-4 border-b border-[#2b2626] pb-2">
+                <h3 className="text-lg font-bold pixel-font text-[#6eb6ff] mb-4 border-b border-[#2b2626] pb-2 glow-cyan">
                   HONORS & REFERENCES
                 </h3>
                 <div className="p-3 bg-[#352f2f]/40 border border-[#2b2626] rounded mb-4">

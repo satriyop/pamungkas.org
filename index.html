@@ -25,14 +25,15 @@
     <meta property="twitter:description" content="Exploring system architecture and digital transformation through a terminal-style lens.">
     <meta property="twitter:image" content="https://ghchart.rshah.org/55a630/satriyop">
 
-    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&family=VT323&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Pixelify+Sans:wght@400;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&family=VT323&display=swap" rel="stylesheet">
     <style>
         :root {
             --color-bg: #433d3c; /* Weathered Wood / Soil */
             --color-primary: #fcf4cf; /* Aged Paper / Cream */
             --color-secondary: #55a630; /* Crops Green */
             --color-accent: #6eb6ff; /* Blue Sky / Watering Can */
-            --color-danger: #ae2012; /* Berry Red */
+            --color-danger: #ff595e; /* Retro Arcade Alarm Red */
+            --font-mono: 'Space Mono', monospace;
         }
 
         body {
@@ -42,11 +43,15 @@
             font-size: 1.25rem;
             overflow-x: hidden;
             cursor: crosshair;
+            text-rendering: geometricPrecision;
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
         }
 
         h1, h2, h3, .pixel-font {
             font-family: 'Pixelify Sans', sans-serif;
             text-transform: uppercase;
+            letter-spacing: 0.04em;
         }
 
         /* Subtler Cathode Scanlines */
@@ -65,8 +70,36 @@
             z-index: 100;
         }
 
+        /* CRT Phosphor Glow Effects */
         .crt-glow {
-            text-shadow: 2px 2px 0px rgba(0, 0, 0, 0.5);
+            text-shadow: 0 0 8px rgba(252, 244, 207, 0.4), 2px 2px 0px #1a1616;
+        }
+
+        .glow-green {
+            text-shadow: 0 0 6px rgba(85, 166, 48, 0.65), 0 0 16px rgba(85, 166, 48, 0.3), 2px 2px 0px #1a1616;
+        }
+
+        .glow-cyan {
+            text-shadow: 0 0 6px rgba(110, 182, 255, 0.65), 0 0 16px rgba(110, 182, 255, 0.3), 2px 2px 0px #1a1616;
+        }
+
+        .glow-red {
+            text-shadow: 0 0 6px rgba(255, 89, 94, 0.65), 0 0 16px rgba(255, 89, 94, 0.3), 2px 2px 0px #1a1616;
+        }
+
+        /* Terminal Cursor Blink */
+        @keyframes blink-caret {
+            0%, 49% { opacity: 1; }
+            50%, 100% { opacity: 0; }
+        }
+
+        .terminal-caret {
+            display: inline-block;
+            animation: blink-caret 1s infinite;
+        }
+
+        .tabular-nums {
+            font-variant-numeric: tabular-nums;
         }
 
         /* 8-bit Hover Effect */
@@ -127,6 +160,7 @@
             border-bottom: 2px solid var(--color-primary);
             display: inline-block;
             margin-bottom: 1rem;
+            letter-spacing: 0.05em;
         }
         .prose-custom strong {
             color: var(--color-accent);
@@ -139,6 +173,78 @@
         .prose-custom hr {
             border-top: 2px dashed var(--color-primary);
             opacity: 0.3;
+        }
+        .prose-custom code:not(pre code) {
+            background-color: #2b2626;
+            color: #55a630;
+            border: 1px solid #352f2f;
+            padding: 0.15rem 0.4rem;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85em;
+            border-radius: 2px;
+        }
+        .prose-custom pre {
+            background-color: #221e1e !important;
+            border: 3px solid #2b2626;
+            box-shadow: inset 2px 2px 0px #141212, 3px 3px 0px #221e1e;
+            padding: 1rem;
+            border-radius: 2px;
+            overflow-x: auto;
+            font-family: 'Space Mono', monospace !important;
+            font-size: 0.85rem;
+        }
+        .prose-custom pre code {
+            color: #fcf4cf !important;
+            background: transparent !important;
+            padding: 0 !important;
+            font-family: inherit !important;
+        }
+        .prose-custom blockquote {
+            border-left: 4px solid var(--color-secondary);
+            padding-left: 1rem;
+            margin-left: 0;
+            color: #fcf4cf;
+            opacity: 0.9;
+            font-style: italic;
+            background: rgba(43, 38, 38, 0.4);
+            padding-top: 0.5rem;
+            padding-bottom: 0.5rem;
+        }
+        .prose-custom ul {
+            list-style: none;
+            padding-left: 1.25rem;
+        }
+        .prose-custom ul > li {
+            position: relative;
+            padding-left: 0.5rem;
+            margin-bottom: 0.35rem;
+        }
+        .prose-custom ul > li::before {
+            content: "◆";
+            color: var(--color-secondary);
+            position: absolute;
+            left: -1rem;
+            font-size: 0.75em;
+            top: 0.15em;
+        }
+        .prose-custom table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 1.5rem 0;
+            font-family: 'Space Mono', monospace;
+            font-size: 0.85rem;
+        }
+        .prose-custom th {
+            background: #2b2626;
+            color: var(--color-secondary);
+            border: 2px solid #352f2f;
+            padding: 0.5rem 0.75rem;
+            text-align: left;
+        }
+        .prose-custom td {
+            border: 1px solid #352f2f;
+            padding: 0.5rem 0.75rem;
+            background: rgba(53, 47, 47, 0.4);
         }
     </style>
 </head>

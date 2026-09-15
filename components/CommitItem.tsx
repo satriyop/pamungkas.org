@@ -124,7 +124,7 @@ const CommitItem: React.FC<CommitItemProps> = ({ event, onClick }) => {
         <span className="text-[#55a630] font-bold text-xs uppercase tracking-widest truncate flex-1 min-w-0">
           {event.repo.name}
         </span>
-        <span className="text-[#ae2012] text-xs font-mono whitespace-nowrap flex-shrink-0 bg-[#2b2626] px-1.5 py-0.5 border border-[#352f2f] rounded-sm">
+        <span className="text-[#ff595e] text-xs font-mono whitespace-nowrap flex-shrink-0 bg-[#2b2626] px-1.5 py-0.5 border border-[#352f2f] rounded-sm tabular-nums glow-red">
           [{displaySha}]
         </span>
       </div>
@@ -137,7 +137,7 @@ const CommitItem: React.FC<CommitItemProps> = ({ event, onClick }) => {
       </h3>
       <div className="text-right text-[#fcf4cf]/75 text-xs mt-2 md:mt-4 border-t border-[#2b2626] pt-2 font-mono flex items-center justify-between">
         <span className="text-[#6eb6ff] text-[10px] uppercase group-hover:text-[#55a630] transition-colors">&gt; VIEW COMMIT</span>
-        <span>{date}</span>
+        <span className="tabular-nums">{date}</span>
       </div>
     </a>
   );

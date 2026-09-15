@@ -303,7 +303,7 @@ ${message}
       
       {/* Mobile Top Header */}
       <header className="md:hidden flex items-center justify-between px-4 py-3 bg-[#4e4444] border-b-4 border-[#2b2626] shadow-[0_4px_0_#221e1e] sticky top-0 z-50">
-        <div className="font-bold text-lg tracking-wider text-[#55a630] pixel-font crt-glow">
+        <div className="font-bold text-lg tracking-wider text-[#55a630] pixel-font glow-green">
           PAMUNGKAS.ORG
         </div>
         <div className="flex items-center gap-2.5 text-xs font-mono">
@@ -430,9 +430,9 @@ ${message}
         <header className="mb-12 md:mb-24 relative mt-4 md:mt-0">
           <h1 className="text-4xl sm:text-6xl md:text-8xl font-black tracking-tighter leading-none m-0 text-[#fcf4cf] pixel-font crt-glow">
             SATRIYO<br/>
-            <span className="text-[#55a630] block md:translate-x-16">PAMUNGKAS</span>
+            <span className="text-[#55a630] block md:translate-x-16 glow-green">PAMUNGKAS</span>
           </h1>
-          <div className="absolute -top-4 -right-4 md:-right-8 bg-[#ae2012] text-white text-[10px] md:text-xs px-2 md:px-3 py-1 font-bold transform rotate-6 border-2 border-white shadow-lg whitespace-nowrap">
+          <div className="absolute -top-4 -right-4 md:-right-8 bg-[#ff595e] text-white text-[10px] md:text-xs px-2 md:px-3 py-1 font-bold transform rotate-6 border-2 border-white shadow-lg whitespace-nowrap glow-red">
             SYSTEM ARCHITECT // 20+ YRS
           </div>
           <HeroSocials />
@@ -445,7 +445,7 @@ ${message}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12">
                 {/* QUEST_LOG */}
                 <div className="inventory-border p-4 md:p-10 flex-1 relative group order-1 min-w-0">
-                  <h3 className="text-[#6eb6ff] text-2xl md:text-3xl mb-4 md:mb-6 pixel-font">QUEST_LOG</h3>
+                  <h3 className="text-[#6eb6ff] text-2xl md:text-3xl mb-4 md:mb-6 pixel-font glow-cyan">QUEST_LOG</h3>
                   <p className="text-base md:text-xl leading-relaxed opacity-90">
                     Satriyo is currently on a mission to modernize critical infrastructure. Armed with high-level certifications and 15+ years of experience in system architecture and digital transformation.
                   </p>
@@ -494,8 +494,8 @@ ${message}
                                 }}
                               >
                                 <div className="text-[11px] font-bold text-[#6eb6ff] uppercase mb-1 flex justify-between items-center font-mono">
-                                  <span className="bg-[#2b2626] px-1.5 py-0.5 border border-[#352f2f] rounded-sm">[{sha.substring(0, 7)}]</span>
-                                  <span className="text-[#fcf4cf]/75">{date}</span>
+                                  <span className="bg-[#2b2626] px-1.5 py-0.5 border border-[#352f2f] rounded-sm tabular-nums">[{sha.substring(0, 7)}]</span>
+                                  <span className="text-[#fcf4cf]/75 tabular-nums">{date}</span>
                                 </div>
                                 <div className="text-xs text-[#fcf4cf]/85 leading-tight line-clamp-1 font-mono group-hover/btn:text-white transition-colors">
                                   &gt; {msg}
@@ -515,14 +515,15 @@ ${message}
 
                   <div className="mt-12 text-xs md:text-sm text-[#55a630] font-bold flex items-center gap-2 font-mono">
                     <span className="w-2 h-2 bg-[#55a630] rounded-full animate-pulse"></span>
-                    CURRENT_OBJECTIVE: SOLVE_CHAOS
+                    <span>CURRENT_OBJECTIVE: SOLVE_CHAOS</span>
+                    <span className="terminal-caret text-[#55a630]">█</span>
                   </div>
                 </div>
 
                 {/* SKILL_GROWTH (GitHub Chart) - Mobile: Order 2, Desktop: Order 3 (Bottom Full Width) */}
                 <div className="inventory-border p-4 md:p-6 relative overflow-hidden order-2 md:order-3 md:col-span-2 min-w-0">
                   <div className="flex justify-between items-center mb-4 md:mb-6">
-                    <h3 className="text-[#6eb6ff] text-2xl md:text-3xl pixel-font">SKILL_GROWTH</h3>
+                    <h3 className="text-[#6eb6ff] text-2xl md:text-3xl pixel-font glow-cyan">SKILL_GROWTH</h3>
                     <div className="text-xs text-[#55a630] font-bold uppercase tracking-widest font-mono">Git: satriyop</div>
                   </div>
                   <div ref={chartContainerRef} className="bg-[#2b2626]/40 p-2 md:p-4 rounded border-2 border-[#2b2626] overflow-x-auto max-w-full">
@@ -544,12 +545,12 @@ ${message}
                 
                 {/* RECENT_LOGS - Mobile: Order 3, Desktop: Order 2 (Right Column) */}
                 <div className="inventory-border p-4 md:p-10 flex-1 bg-[#352f2f]/30 order-3 md:order-2 min-w-0">
-                  <h3 className="text-[#6eb6ff] text-2xl md:text-3xl mb-4 md:mb-6 pixel-font">RECENT_LOGS</h3>
+                  <h3 className="text-[#6eb6ff] text-2xl md:text-3xl mb-4 md:mb-6 pixel-font glow-cyan">RECENT_LOGS</h3>
                   <div className="space-y-4">
                     {loadingEvents ? (
                       <div className="text-[#55a630] font-bold animate-pulse text-sm">Loading datastream...</div>
                     ) : eventsError ? (
-                      <div className="text-[#ae2012] text-xs font-mono">
+                      <div className="text-[#ff595e] text-xs font-mono glow-red">
                         SIGNAL INTERRUPT: {eventsError}
                       </div>
                     ) : (
@@ -569,7 +570,7 @@ ${message}
 
               {/* Public Repositories as Inventory Slots */}
               <div className="space-y-6">
-                <h3 className="text-[#6eb6ff] text-2xl md:text-3xl pixel-font">PUBLIC_ARTIFACTS</h3>
+                <h3 className="text-[#6eb6ff] text-2xl md:text-3xl pixel-font glow-cyan">PUBLIC_ARTIFACTS</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
                   {loadingRepos ? (
                     Array.from({ length: 8 }).map((_, i) => (
@@ -578,7 +579,7 @@ ${message}
                       </div>
                     ))
                   ) : reposError ? (
-                    <div className="col-span-full text-center p-8 border-2 border-dashed border-[#ae2012]/40 text-[#ae2012] font-mono text-xs">
+                    <div className="col-span-full text-center p-8 border-2 border-dashed border-[#ff595e]/40 text-[#ff595e] font-mono text-xs">
                       SECTOR OFFLINE: {reposError}
                     </div>
                   ) : repos.length > 0 ? (
@@ -603,7 +604,7 @@ ${message}
                               />
                               <span className="truncate">{repo.language || 'Code'}</span>
                             </span>
-                            <span className="text-[10px] text-[#fcf4cf] bg-[#2b2626] px-2 py-0.5 rounded-sm border border-[#352f2f] font-mono font-bold flex items-center gap-1 flex-shrink-0">
+                            <span className="text-[10px] text-[#fcf4cf] bg-[#2b2626] px-2 py-0.5 rounded-sm border border-[#352f2f] font-mono font-bold flex items-center gap-1 flex-shrink-0 tabular-nums">
                               <span className="text-[#55a630]">★</span> {repo.stargazers_count}
                             </span>
                           </div>
@@ -623,7 +624,7 @@ ${message}
                       </a>
                     ))
                   ) : (
-                    <div className="col-span-full text-center p-8 border-2 border-dashed border-[#2b2626] text-[#ae2012] font-mono">
+                    <div className="col-span-full text-center p-8 border-2 border-dashed border-[#2b2626] text-[#ff595e] font-mono">
                       No artifacts discovered in this sector.
                     </div>
                   )}
@@ -640,7 +641,7 @@ ${message}
             <div className="space-y-12 md:space-y-16">
               {/* X_SIGNAL — static same-origin JSON */}
               <div className="space-y-6">
-                <h2 className="text-3xl md:text-5xl text-[#55a630] pixel-font border-l-8 border-[#55a630] pl-4 md:pl-6">
+                <h2 className="text-3xl md:text-5xl text-[#55a630] pixel-font border-l-8 border-[#55a630] pl-4 md:pl-6 glow-green">
                   X_SIGNAL
                 </h2>
                 {loadingXSignal ? (
@@ -648,11 +649,11 @@ ${message}
                     <span className="text-xl pixel-font text-[#55a630]">SCANNING FREQUENCY...</span>
                   </div>
                 ) : xSignalError ? (
-                  <div className="inventory-border p-8 text-center text-[#ae2012] font-mono text-sm">
+                  <div className="inventory-border p-8 text-center text-[#ff595e] font-mono text-sm">
                     SIGNAL LOST: X_SIGNAL UNAVAILABLE.
                   </div>
                 ) : xSignal.length === 0 ? (
-                  <div className="inventory-border p-8 text-center text-[#ae2012]">
+                  <div className="inventory-border p-8 text-center text-[#ff595e] font-mono">
                     NO X SIGNALS DETECTED.
                   </div>
                 ) : (
@@ -666,7 +667,7 @@ ${message}
                         className="inventory-border p-4 md:p-6 hover:bg-[#352f2f] transition-all group block no-underline"
                       >
                         <div className="flex justify-between items-center mb-2 gap-4">
-                          <span className="text-[#6eb6ff] font-bold text-xs uppercase tracking-widest">
+                          <span className="text-[#6eb6ff] font-bold text-xs uppercase tracking-widest tabular-nums">
                             {formatSignalDate(item.created_at)}
                           </span>
                           <span className="text-[#55a630] text-xs font-mono group-hover:text-white whitespace-nowrap">
@@ -684,7 +685,7 @@ ${message}
 
               {/* Live GitHub Push Stream */}
               <div className="space-y-6">
-                <h2 className="text-3xl md:text-5xl text-[#6eb6ff] pixel-font border-l-8 border-[#6eb6ff] pl-4 md:pl-6">
+                <h2 className="text-3xl md:text-5xl text-[#6eb6ff] pixel-font border-l-8 border-[#6eb6ff] pl-4 md:pl-6 glow-cyan">
                   DATA_STREAM
                 </h2>
                 {loadingEvents ? (
@@ -692,7 +693,7 @@ ${message}
                     <span className="text-xl pixel-font text-[#6eb6ff]">CONNECTING TO SATELLITE...</span>
                   </div>
                 ) : eventsError ? (
-                  <div className="inventory-border p-8 text-center text-[#ae2012] font-mono text-sm">
+                  <div className="inventory-border p-8 text-center text-[#ff595e] font-mono text-sm">
                     SATELLITE COMM ERROR: {eventsError}
                   </div>
                 ) : (
@@ -704,7 +705,7 @@ ${message}
                         <CommitItem key={event.id} event={event} onClick={(msg, sha) => handleCommitClick(event, msg, sha)} />
                       ))}
                     {githubEvents.filter(event => event.type === 'PushEvent').length === 0 && (
-                      <div className="inventory-border p-8 text-center text-[#ae2012]">
+                      <div className="inventory-border p-8 text-center text-[#ff595e] font-mono">
                         NO DATA SIGNALS DETECTED.
                       </div>
                     )}
@@ -732,21 +733,22 @@ ${message}
       {/* Floating Status Bar - Desktop HUD */}
       <footer className="fixed bottom-6 right-16 w-64 border-4 border-[#2b2626] bg-[#4e4444] p-4 font-mono z-40 shadow-[6px_6px_0px_#221e1e] origin-bottom-right hidden md:block">
         <div className="flex justify-between items-center border-b-2 border-[#2b2626] mb-3 pb-1">
-            <div className="text-[#55a630] font-bold text-xs uppercase pixel-font">Status Window</div>
-            <div className="text-[#ae2012] text-xs font-bold flex items-center gap-1.5">
-              <span className="w-2 h-2 rounded-full bg-[#ae2012] animate-pulse inline-block"></span>
+            <div className="text-[#55a630] font-bold text-xs uppercase pixel-font glow-green">Status Window</div>
+            <div className="text-[#ff595e] text-xs font-bold flex items-center gap-1.5 tabular-nums">
+              <span className="w-2 h-2 rounded-full bg-[#ff595e] animate-pulse inline-block"></span>
               Live
             </div>
         </div>
-        <div className="space-y-2 text-xs font-bold">
-          <div className="flex justify-between text-[#fcf4cf]"><span>ENERGY:</span><span className="text-[#55a630]">█████████▒ 90%</span></div>
-          <div className="flex justify-between text-[#fcf4cf]"><span>GOLD:</span><span className="text-[#fcf4cf]">15,420g</span></div>
+        <div className="space-y-2 text-xs font-bold font-mono">
+          <div className="flex justify-between text-[#fcf4cf] tabular-nums"><span>ENERGY:</span><span className="text-[#55a630]">█████████▒ 90%</span></div>
+          <div className="flex justify-between text-[#fcf4cf] tabular-nums"><span>GOLD:</span><span className="text-[#fcf4cf]">15,420g</span></div>
           <div className="flex justify-between text-[10px] mt-2 border-t border-[#2b2626] pt-1">
             <span className="text-[#6eb6ff] font-bold">HOTKEYS: [1][2][3]</span>
-            {currentPage === Page.POST && <span className="text-[#ae2012] font-bold">[ESC] BACK</span>}
+            {currentPage === Page.POST && <span className="text-[#ff595e] font-bold">[ESC] BACK</span>}
           </div>
-          <div className="mt-1 text-[#6eb6ff] uppercase truncate overflow-hidden text-[10px]">
-            &gt; {terminalHistory[terminalHistory.length - 1].split(':').pop()?.trim()}
+          <div className="mt-1 text-[#6eb6ff] uppercase truncate overflow-hidden text-[10px] flex items-center">
+            <span>&gt; {terminalHistory[terminalHistory.length - 1].split(':').pop()?.trim()}</span>
+            <span className="terminal-caret text-[#6eb6ff] ml-1">█</span>
           </div>
         </div>
       </footer>
